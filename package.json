@@ -1,13 +1,13 @@
 {
   "name": "@ayingott/venti",
   "version": "0.0.3",
-  "packageManager": "pnpm@7.12.1",
+  "packageManager": "pnpm@7.12.2",
   "description": "venti",
   "bin": {
     "venti": "./cli.mjs"
   },
   "files": [
-    "dist"
+    "dist/index.js"
   ],
   "sideEffects": false,
   "scripts": {
@@ -41,9 +41,8 @@
     "cac": "^6.7.14",
     "chalk": "^5.0.1",
     "envinfo": "^7.8.1",
-    "execa": "^6.1.0",
     "lint-staged": "^13.0.3",
-    "pnpm": "^7.12.1",
+    "pnpm": "^7.12.2",
     "prettier": "^2.7.1",
     "prompts": "^2.4.2",
     "simple-git-hooks": "^2.8.0",
