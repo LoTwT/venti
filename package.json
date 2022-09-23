@@ -1,6 +1,6 @@
 {
   "name": "@ayingott/venti",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "packageManager": "pnpm@7.12.1",
   "description": "venti",
   "bin": {
