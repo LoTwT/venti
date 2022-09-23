@@ -1,9 +1,9 @@
 import createCac from "cac"
 import { envAction } from "./libs/env"
 
-const cac = createCac()
+const cac = createCac("venti")
 
-cac.command("env", "Node Related Environment").action(envAction)
+cac.command("env", "Environment Variables").action(envAction)
 
 cac.help()
 
