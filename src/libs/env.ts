@@ -35,7 +35,7 @@ const getPackageManager = async () => {
   let packageManager: Nullable<string> = null
 
   if (fs.existsSync(packageJsonPath))
-    packageManager = (await import(packageJsonPath))?.packageManager ?? null
+    packageManager = require(packageJsonPath)?.packageManager ?? null
 
   return packageManager
 }
