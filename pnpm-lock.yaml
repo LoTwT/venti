@@ -1,10 +1,13 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@types/envinfo': ^7.8.1
   '@types/node': ^18.7.18
   bumpp: ^8.2.1
   cac: ^6.7.14
   chalk: ^5.0.1
+  envinfo: ^7.8.1
+  execa: ^6.1.0
   lint-staged: ^13.0.3
   pnpm: ^7.12.1
   prettier: ^2.7.1
@@ -19,10 +22,13 @@ specifiers:
   yaml: ^2.1.1
 
 devDependencies:
+  '@types/envinfo': 7.8.1
   '@types/node': 18.7.18
   bumpp: 8.2.1
   cac: 6.7.14
   chalk: 5.0.1
+  envinfo: 7.8.1
+  execa: 6.1.0
   lint-staged: 13.0.3
   pnpm: 7.12.1
   prettier: 2.7.1
@@ -219,6 +225,10 @@ packages:
 
   /@types/chai/4.3.3:
     resolution: {integrity: sha512-hC7OMnszpxhZPduX+m+nrx+uFoLkWOMiR4oa/AZF3MuSETYTZmFfJAHqZEM8MVlvfG7BEUcgvtwoCTxBp6hm3g==}
+    dev: true
+
+  /@types/envinfo/7.8.1:
+    resolution: {integrity: sha512-pTyshpmGxqB9lRwG75v2YR0oqKYpCrklOYlZWQ88z/JB0fimT8EVmYekuIwpU3IxPZDHSXCqXKzkCrtAcKY25g==}
     dev: true
 
   /@types/node/18.7.18:
@@ -619,6 +629,12 @@ packages:
   /env-paths/2.2.1:
     resolution: {integrity: sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==}
     engines: {node: '>=6'}
+    dev: true
+
+  /envinfo/7.8.1:
+    resolution: {integrity: sha512-/o+BXHmB7ocbHEAs6F2EnG0ogybVVUdkRunTT2glZU9XAaGmhqskrvKwqXuDfNjEO0LZKWdejEEpnq8aM0tOaw==}
+    engines: {node: '>=4'}
+    hasBin: true
     dev: true
 
   /err-code/2.0.3:

@@ -35,10 +35,13 @@
   },
   "homepage": "https://github.com/LoTwT/venti#readme",
   "devDependencies": {
+    "@types/envinfo": "^7.8.1",
     "@types/node": "^18.7.18",
     "bumpp": "^8.2.1",
     "cac": "^6.7.14",
     "chalk": "^5.0.1",
+    "envinfo": "^7.8.1",
+    "execa": "^6.1.0",
     "lint-staged": "^13.0.3",
     "pnpm": "^7.12.1",
     "prettier": "^2.7.1",
