@@ -49,7 +49,7 @@ ${Object.entries(info.System).reduce(
 )}`
   },
   Binaries: (info: Record<string, any>) => {
-    const binaries = Object.entries(info.Binaries)
+    const binaries = Object.entries(info?.Binaries ?? [])
 
     if (binaries.length < 1) return ""
 
@@ -60,7 +60,7 @@ ${binaries.reduce(
 )}`
   },
   npmPackages: (info: Record<string, any>) => {
-    const npmPackages = Object.entries(info.npmPackages)
+    const npmPackages = Object.entries(info?.npmPackages ?? [])
 
     if (npmPackages.length < 1) return ""
 
