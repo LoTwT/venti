@@ -49,15 +49,23 @@ ${Object.entries(info.System).reduce(
 )}`
   },
   Binaries: (info: Record<string, any>) => {
+    const binaries = Object.entries(info.Binaries)
+
+    if (binaries.length < 1) return ""
+
     return `Binaries:
-${Object.entries(info.Binaries).reduce(
+${binaries.reduce(
   (prev, [key, value]) => prev + `  - ${key}: ${(value as any).version}\n`,
   "",
 )}`
   },
   npmPackages: (info: Record<string, any>) => {
+    const npmPackages = Object.entries(info.npmPackages)
+
+    if (npmPackages.length < 1) return ""
+
     return `npmPackages:
-${Object.entries(info.npmPackages).reduce(
+${npmPackages.reduce(
   (prev, [key, value]) => prev + `  - ${key}: ${(value as any).installed}\n`,
   "",
 )}`
