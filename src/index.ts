@@ -1,9 +1,11 @@
 import createCac from "cac"
-import { envAction } from "./libs/env"
+import { envAction, cloneAction } from "@/libs"
 
 const cac = createCac("venti")
 
-cac.command("env", "Environment Variables").action(envAction)
+cac.command("env", "environment variables").action(envAction)
+
+cac.command("clone [repo]", "wrapper of git clone").action(cloneAction)
 
 cac.help()
 
