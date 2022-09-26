@@ -33,7 +33,7 @@ export const cloneAction = async (
     repo = result.repo
   }
 
-  const repoPath = ensureDotGit(`${concatRepoPath(repo, platform)}${repo}`)
+  const repoPath = ensureDotGit(`${concatRepoPath(repo, platform)}`)
 
   try {
     await execa("git", ["clone", repoPath], { stdio: "inherit" })
