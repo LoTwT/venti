@@ -4,6 +4,7 @@ specifiers:
   '@types/envinfo': ^7.8.1
   '@types/node': ^18.7.23
   '@types/prompts': ^2.0.14
+  '@types/rimraf': ^3.0.2
   bumpp: ^8.2.1
   cac: ^6.7.14
   chalk: ^5.0.1
@@ -13,6 +14,7 @@ specifiers:
   pnpm: ^7.12.2
   prettier: ^2.7.1
   prompts: ^2.4.2
+  rimraf: ^3.0.2
   simple-git-hooks: ^2.8.0
   taze: ^0.8.2
   tsup: ^6.2.3
@@ -25,6 +27,7 @@ devDependencies:
   '@types/envinfo': 7.8.1
   '@types/node': 18.7.23
   '@types/prompts': 2.0.14
+  '@types/rimraf': 3.0.2
   bumpp: 8.2.1
   cac: 6.7.14
   chalk: 5.0.1
@@ -34,6 +37,7 @@ devDependencies:
   pnpm: 7.12.2
   prettier: 2.7.1
   prompts: 2.4.2
+  rimraf: 3.0.2
   simple-git-hooks: 2.8.0
   taze: 0.8.2
   tsup: 6.2.3_typescript@4.8.4
@@ -192,6 +196,17 @@ packages:
     resolution: {integrity: sha512-pTyshpmGxqB9lRwG75v2YR0oqKYpCrklOYlZWQ88z/JB0fimT8EVmYekuIwpU3IxPZDHSXCqXKzkCrtAcKY25g==}
     dev: true
 
+  /@types/glob/8.0.0:
+    resolution: {integrity: sha512-l6NQsDDyQUVeoTynNpC9uRvCUint/gSUXQA2euwmTuWGvPY5LSDUu6tkCtJB2SvGQlJQzLaKqcGZP4//7EDveA==}
+    dependencies:
+      '@types/minimatch': 5.1.2
+      '@types/node': 18.7.23
+    dev: true
+
+  /@types/minimatch/5.1.2:
+    resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
+    dev: true
+
   /@types/node/18.7.23:
     resolution: {integrity: sha512-DWNcCHolDq0ZKGizjx2DZjR/PqsYwAcYUJmfMWqtVU2MBMG5Mo+xFZrhGId5r/O5HOuMPyQEcM6KUBp5lBZZBg==}
     dev: true
@@ -199,6 +214,13 @@ packages:
   /@types/prompts/2.0.14:
     resolution: {integrity: sha512-HZBd99fKxRWpYCErtm2/yxUZv6/PBI9J7N4TNFffl5JbrYMHBwF25DjQGTW3b3jmXq+9P6/8fCIb2ee57BFfYA==}
     dependencies:
+      '@types/node': 18.7.23
+    dev: true
+
+  /@types/rimraf/3.0.2:
+    resolution: {integrity: sha512-F3OznnSLAUxFrCEu/L5PY8+ny8DtcFRjx7fZZ9bycvXRi3KPTRS9HOitGZwvPg0juRhXFWIeKX58cnX5YqLohQ==}
+    dependencies:
+      '@types/glob': 8.0.0
       '@types/node': 18.7.23
     dev: true
 

@@ -3,6 +3,8 @@ import prompts from "prompts"
 import { execa } from "execa"
 import chalk from "chalk"
 import { processExit } from "@/utils"
+import rimraf from "rimraf"
+import fs from "node:fs"
 
 const { bold, red, yellow, cyan, green } = chalk
 
@@ -12,15 +14,17 @@ type Platform = "github" | "gitlab"
 
 interface CloneActionOptions {
   platform: MayBeUndefined<Platform>
+  clean: MayBeUndefined<boolean>
 }
 
+// todo customize repo dir name
 export const cloneAction = async (
   input: MayBeUndefined<string>,
   options: CloneActionOptions,
 ) => {
   let repo = input ?? ""
 
-  const { platform = "github" } = options
+  const { platform = "github", clean = false } = options
 
   if (!repo || !validateRepo(repo)) {
     const result = await prompts({
@@ -37,6 +41,13 @@ export const cloneAction = async (
 
   try {
     await execa("git", ["clone", repoPath], { stdio: "inherit" })
+
+    if (clean) {
+      const repoDirname = repo.split("/")[1]
+      const repoDirPath = `${process.cwd()}/${repoDirname}`
+      const dotGitPath = `${repoDirPath}/.git`
+      fs.existsSync(dotGitPath) && rimraf.sync(dotGitPath)
+    }
 
     console.log(
       `\n${bold(green(`🚀 Clone ${yellow(repoPath)} successfully!`))}`,
