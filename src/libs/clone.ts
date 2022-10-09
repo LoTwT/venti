@@ -17,13 +17,11 @@ interface CloneActionOptions {
   clean: MayBeUndefined<boolean>
 }
 
-// todo customize repo dir name
 export const cloneAction = async (
-  input: MayBeUndefined<string>,
+  repo: string,
+  dirname: MayBeUndefined<string>,
   options: CloneActionOptions,
 ) => {
-  let repo = input ?? ""
-
   const { platform = "github", clean = false } = options
 
   if (!repo || !validateRepo(repo)) {
@@ -39,18 +37,31 @@ export const cloneAction = async (
 
   const repoPath = ensureDotGit(`${concatRepoPath(repo, platform)}`)
 
+  const repoDirname = repo.split("/")[1]
+
+  const repoDirPath = `${process.cwd()}/${repoDirname}`
+  const targetDirname = dirname || repoDirname
+
   try {
-    await execa("git", ["clone", repoPath], { stdio: "inherit" })
+    await execa("git", ["clone", repoPath, targetDirname], {
+      stdio: "inherit",
+    })
 
     if (clean) {
-      const repoDirname = repo.split("/")[1]
-      const repoDirPath = `${process.cwd()}/${repoDirname}`
       const dotGitPath = `${repoDirPath}/.git`
       fs.existsSync(dotGitPath) && rimraf.sync(dotGitPath)
     }
 
     console.log(
-      `\n${bold(green(`🚀 Clone ${yellow(repoPath)} successfully!`))}`,
+      `
+${bold(
+  green(
+    `🚀 Clone ${cyan(`${platform}:${repo}`)} into ${yellow(
+      targetDirname,
+    )} successfully!`,
+  ),
+)}
+`,
     )
   } catch (error) {
     console.error(`\n${bold(red(`❌ fail to clone ${yellow(repoPath)} !`))}`)

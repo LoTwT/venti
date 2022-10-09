@@ -6,7 +6,7 @@ const cac = createCac("venti")
 cac.command("env", "environment variables").action(envAction)
 
 cac
-  .command("clone [repo]", "wrapper of git clone")
+  .command("clone <repo> [dirname]", "wrapper of git clone")
   .option("-p, --platform [platform]", "github or gitlab")
   .option("-c, --clean", "clean clone without .git")
   .action(cloneAction)
