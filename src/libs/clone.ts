@@ -1,8 +1,7 @@
-import { MayBeUndefined } from "@/types"
+import { MayBeUndefined, processExit } from "@ayingott/sucrose"
 import prompts from "prompts"
 import { execa } from "execa"
 import chalk from "chalk"
-import { processExit } from "@/utils"
 import rimraf from "rimraf"
 import fs from "node:fs"
 

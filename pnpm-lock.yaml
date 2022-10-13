@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@ayingott/sucrose': ^0.0.2
   '@types/envinfo': ^7.8.1
   '@types/node': ^18.8.3
   '@types/prompts': ^2.4.1
@@ -24,6 +25,7 @@ specifiers:
   yaml: ^2.1.3
 
 devDependencies:
+  '@ayingott/sucrose': 0.0.2
   '@types/envinfo': 7.8.1
   '@types/node': 18.8.3
   '@types/prompts': 2.4.1
@@ -55,6 +57,10 @@ packages:
 
   /@antfu/utils/0.5.2:
     resolution: {integrity: sha512-CQkeV+oJxUazwjlHD0/3ZD08QWKuGQkhnrKo3e6ly5pd48VUpXbb77q0xMU4+vc2CkJnDS02Eq/M9ugyX20XZA==}
+    dev: true
+
+  /@ayingott/sucrose/0.0.2:
+    resolution: {integrity: sha512-xFYx8NtG3kLo0jQ+sN3pa1imEYv2M1mNEhxZ34p7IOKxPvzL9Lg4rvuvSOP5YxNrX8CmIjzjUbuuIo7kDHGHTQ==}
     dev: true
 
   /@esbuild/android-arm/0.15.10:

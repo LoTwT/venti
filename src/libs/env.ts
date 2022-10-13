@@ -1,4 +1,4 @@
-import { Nullable } from "@/types"
+import { Nullable } from "@ayingott/sucrose"
 import envinfo from "envinfo"
 import fs from "node:fs"
 import path from "node:path"
