@@ -39,8 +39,8 @@ export const cloneAction = async (
 
   const repoDirname = repo.split("/")[1]
 
-  const repoDirPath = `${process.cwd()}/${repoDirname}`
   const targetDirname = dirname || repoDirname
+  const repoDirPath = `${process.cwd()}/${targetDirname}`
 
   try {
     await execa("git", ["clone", repoPath, targetDirname], {
@@ -49,6 +49,7 @@ export const cloneAction = async (
 
     if (clean) {
       const dotGitPath = `${repoDirPath}/.git`
+      console.log("===> ", dotGitPath)
       fs.existsSync(dotGitPath) && rimraf.sync(dotGitPath)
     }
 
