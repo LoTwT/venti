@@ -1,7 +1,57 @@
-import { Nullable } from "@ayingott/sucrose"
-import envinfo from "envinfo"
 import fs from "node:fs"
 import path from "node:path"
+import process from "node:process"
+import type { Nullable } from "@ayingott/sucrose"
+import envinfo from "envinfo"
+
+const infoStrategies: Record<string, (...args: any) => string> = {
+  System: (info: Record<string, any>) => {
+    return `System:
+${Object.entries(info.System).reduce(
+  (prev, [key, value]) => `${prev}  - ${key}: ${value}\n`,
+  "",
+)}`
+  },
+  Binaries: (info: Record<string, any>) => {
+    const binaries = Object.entries(info?.Binaries ?? [])
+
+    if (binaries.length < 1) return ""
+
+    return `Binaries:
+${binaries.reduce(
+  (prev, [key, value]) => `${prev}  - ${key}: ${(value as any).version}\n`,
+  "",
+)}`
+  },
+  npmPackages: (info: Record<string, any>) => {
+    const npmPackages = Object.entries(info?.npmPackages ?? [])
+
+    if (npmPackages.length < 1) return ""
+
+    return `npmPackages:
+${npmPackages.reduce(
+  (prev, [key, value]) => `${prev}  - ${key}: ${(value as any).installed}\n`,
+  "",
+)}`
+  },
+}
+
+const getPackageManager = async () => {
+  const packageJsonPath = path.resolve(process.cwd(), "package.json")
+
+  let packageManager: Nullable<string> = null
+
+  if (fs.existsSync(packageJsonPath))
+    packageManager = (await import(packageJsonPath))?.packageManager ?? null
+
+  return packageManager
+}
+
+const getResult = (info: Record<string, any>) =>
+  ["System", "Binaries", "npmPackages"].reduce(
+    (prev, curr) => `${prev}\n${infoStrategies?.[curr]?.(info)}`,
+    "",
+  )
 
 export const envAction = async () => {
   const res = await envinfo.run(
@@ -22,58 +72,9 @@ export const envAction = async () => {
 
     if (pm && v) {
       delete info?.Binaries?.npm
-      info["Binaries"][pm] = { version: v }
+      info.Binaries[pm] = { version: v }
     }
   }
 
   console.log(getResult(info))
 }
-
-const getPackageManager = async () => {
-  const packageJsonPath = path.resolve(process.cwd(), "package.json")
-
-  let packageManager: Nullable<string> = null
-
-  if (fs.existsSync(packageJsonPath))
-    packageManager = require(packageJsonPath)?.packageManager ?? null
-
-  return packageManager
-}
-
-const infoStrategies: Record<string, (...args: any) => string> = {
-  System: (info: Record<string, any>) => {
-    return `System:
-${Object.entries(info.System).reduce(
-  (prev, [key, value]) => prev + `  - ${key}: ${value}\n`,
-  "",
-)}`
-  },
-  Binaries: (info: Record<string, any>) => {
-    const binaries = Object.entries(info?.Binaries ?? [])
-
-    if (binaries.length < 1) return ""
-
-    return `Binaries:
-${binaries.reduce(
-  (prev, [key, value]) => prev + `  - ${key}: ${(value as any).version}\n`,
-  "",
-)}`
-  },
-  npmPackages: (info: Record<string, any>) => {
-    const npmPackages = Object.entries(info?.npmPackages ?? [])
-
-    if (npmPackages.length < 1) return ""
-
-    return `npmPackages:
-${npmPackages.reduce(
-  (prev, [key, value]) => prev + `  - ${key}: ${(value as any).installed}\n`,
-  "",
-)}`
-  },
-}
-
-const getResult = (info: Record<string, any>) =>
-  ["System", "Binaries", "npmPackages"].reduce(
-    (prev, curr) => prev + "\n" + infoStrategies?.[curr]?.(info),
-    "",
-  )

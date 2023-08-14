@@ -1,9 +1,11 @@
-import { MayBeUndefined, processExit } from "@ayingott/sucrose"
+import fs from "node:fs"
+import process from "node:process"
+import type { MayBeUndefined } from "@ayingott/sucrose"
+import { processExit } from "@ayingott/sucrose"
 import prompts from "prompts"
 import { execa } from "execa"
 import chalk from "chalk"
-import rimraf from "rimraf"
-import fs from "node:fs"
+import * as rimraf from "rimraf"
 
 const { bold, red, yellow, cyan, green } = chalk
 
@@ -14,6 +16,24 @@ type Platform = "github" | "gitlab"
 interface CloneActionOptions {
   platform: MayBeUndefined<Platform>
   clean: MayBeUndefined<boolean>
+}
+
+const REPO_RE = /^[a-zA-Z\d]{1}[a-zA-Z\d\-]*[a-zA-Z\d]?\/[\w\-\.]+$/
+export const validateRepo = (repo: string) => REPO_RE.test(repo)
+
+export const ensureDotGit = (repo: string) =>
+  !repo.endsWith(".git") ? `${repo}.git` : repo
+
+export const concatRepoPath = (repo: string, platform: Platform) => {
+  if (platform === "github") return `${GithubPrefix}${repo}`
+
+  if (platform === "gitlab") {
+    console.log(bold(cyan("✨ Clone Gitlab repo is WIP.")))
+    processExit()
+  }
+
+  console.error(bold(red("❌ Invalid platform")))
+  processExit()
 }
 
 export const cloneAction = async (
@@ -68,21 +88,3 @@ ${bold(
     processExit()
   }
 }
-
-const REPO_RE = /^[a-zA-Z\d]{1}[a-zA-Z\d\-]*[a-zA-Z\d]?\/[\w\-\.]+$/
-export const validateRepo = (repo: string) => REPO_RE.test(repo)
-
-export const concatRepoPath = (repo: string, platform: Platform) => {
-  if (platform === "github") return `${GithubPrefix}${repo}`
-
-  if (platform === "gitlab") {
-    console.log(bold(cyan("✨ Clone Gitlab repo is WIP.")))
-    processExit()
-  }
-
-  console.error(bold(red("❌ Invalid platform")))
-  processExit()
-}
-
-export const ensureDotGit = (repo: string) =>
-  !repo.endsWith(".git") ? `${repo}.git` : repo

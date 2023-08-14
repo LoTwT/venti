@@ -1,5 +1,6 @@
 import createCac from "cac"
-import { envAction, cloneAction } from "@/libs"
+import pkgJson from "../package.json"
+import { cloneAction, envAction } from "@/libs"
 
 const cac = createCac("venti")
 
@@ -13,6 +14,6 @@ cac
 
 cac.help()
 
-cac.version(require("../package.json").version)
+cac.version(pkgJson.version)
 
 cac.parse()

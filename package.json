@@ -3,17 +3,28 @@
   "version": "0.0.12",
   "packageManager": "pnpm@7.13.4",
   "description": "venti",
+  "author": "LoTwT <709937065@qq.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/LoTwT/venti#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoTwT/venti.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LoTwT/venti/issues"
+  },
+  "keywords": [],
+  "sideEffects": false,
   "bin": {
     "venti": "./cli.mjs"
   },
   "files": [
     "dist/index.js"
   ],
-  "sideEffects": false,
   "scripts": {
     "watch": "tsup --watch",
     "build": "tsup",
-    "lint": "prettier -c .",
+    "lint": "eslint .",
     "prettier": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
@@ -23,18 +34,8 @@
     "up": "taze latest -I",
     "cli": "node ./cli.mjs"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/LoTwT/venti.git"
-  },
-  "keywords": [],
-  "author": "LoTwT <709937065@qq.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/LoTwT/venti/issues"
-  },
-  "homepage": "https://github.com/LoTwT/venti#readme",
   "devDependencies": {
+    "@ayingott/eslint-config": "^0.2.7",
     "@ayingott/sucrose": "^0.0.21",
     "@types/envinfo": "^7.8.1",
     "@types/node": "^20.5.0",
@@ -44,6 +45,7 @@
     "cac": "^6.7.14",
     "chalk": "^5.3.0",
     "envinfo": "^7.10.0",
+    "eslint": "^8.47.0",
     "execa": "^7.2.0",
     "lint-staged": "^14.0.0",
     "pnpm": "^8.6.12",
@@ -62,8 +64,12 @@
     "pre-commit": "pnpm exec lint-staged"
   },
   "lint-staged": {
-    "*": [
-      "prettier --write --ignore-unknown"
-    ]
+    "*": "eslint --fix"
+  },
+  "eslintConfig": {
+    "extends": "@ayingott/eslint-config",
+    "rules": {
+      "no-console": "off"
+    }
   }
 }
