@@ -1,4 +1,4 @@
-import { ensureDotGit, validateRepo } from "@/libs/clone"
+import { ensureDotGit, validateRepo } from "@/utils/clone"
 
 describe("command clone", () => {
   test("validateRepo", () => {
