@@ -1,11 +1,11 @@
 import fs from "node:fs"
 import process from "node:process"
-import type { MayBeUndefined } from "@ayingott/sucrose"
 import { processExit } from "@ayingott/sucrose"
 import prompts from "prompts"
 import { execa } from "execa"
 import chalk from "chalk"
 import * as rimraf from "rimraf"
+import { type MayBeUndefined } from "@ayingott/sucrose"
 
 const { bold, red, yellow, cyan, green } = chalk
 
@@ -18,7 +18,7 @@ interface CloneActionOptions {
   clean: MayBeUndefined<boolean>
 }
 
-const REPO_RE = /^[a-zA-Z\d]{1}[a-zA-Z\d\-]*[a-zA-Z\d]?\/[\w\-\.]+$/
+const REPO_RE = /^[\dA-Za-z][\dA-Za-z\-]*[\dA-Za-z]?\/[\w.\-]+$/
 export const validateRepo = (repo: string) => REPO_RE.test(repo)
 
 export const ensureDotGit = (repo: string) =>
@@ -68,7 +68,7 @@ export const cloneAction = async (
 
     if (clean) {
       const dotGitPath = `${repoDirPath}/.git`
-      console.log("===> ", dotGitPath)
+      console.log("===>", dotGitPath)
       fs.existsSync(dotGitPath) && rimraf.sync(dotGitPath)
     }
 
@@ -83,7 +83,7 @@ ${bold(
 )}
 `,
     )
-  } catch (error) {
+  } catch {
     console.error(`\n${bold(red(`❌ fail to clone ${yellow(repoPath)} !`))}`)
     processExit()
   }

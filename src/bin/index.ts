@@ -1,6 +1,6 @@
 import createCac from "cac"
-import pkgJson from "../..//package.json"
 import { cloneAction, envAction } from "@/utils"
+import pkgJson from "../../package.json"
 
 const cac = createCac("venti")
 

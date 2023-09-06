@@ -1,8 +1,8 @@
 import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
-import type { Nullable } from "@ayingott/sucrose"
 import envinfo from "envinfo"
+import { type Nullable } from "@ayingott/sucrose"
 
 const infoStrategies: Record<string, (...args: any) => string> = {
   System: (info: Record<string, any>) => {
@@ -15,7 +15,7 @@ ${Object.entries(info.System).reduce(
   Binaries: (info: Record<string, any>) => {
     const binaries = Object.entries(info?.Binaries ?? [])
 
-    if (binaries.length < 1) return ""
+    if (binaries.length === 0) return ""
 
     return `Binaries:
 ${binaries.reduce(
@@ -26,7 +26,7 @@ ${binaries.reduce(
   npmPackages: (info: Record<string, any>) => {
     const npmPackages = Object.entries(info?.npmPackages ?? [])
 
-    if (npmPackages.length < 1) return ""
+    if (npmPackages.length === 0) return ""
 
     return `npmPackages:
 ${npmPackages.reduce(

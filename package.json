@@ -1,8 +1,9 @@
 {
   "name": "@ayingott/venti",
   "version": "0.0.13",
-  "packageManager": "pnpm@8.6.12",
   "description": "venti",
+  "type": "module",
+  "packageManager": "pnpm@8.7.4",
   "author": "LoTwT <709937065@qq.com>",
   "license": "MIT",
   "homepage": "https://github.com/LoTwT/venti#readme",
@@ -16,7 +17,7 @@
   "keywords": [],
   "sideEffects": false,
   "bin": {
-    "venti": "./src/bin/cli.mjs"
+    "venti": "./src/bin/cli.cjs"
   },
   "files": [
     "dist"
@@ -35,41 +36,40 @@
     "cli": "tsx ./src/bin/cli.mjs"
   },
   "devDependencies": {
-    "@ayingott/eslint-config": "^0.2.7",
-    "@ayingott/sucrose": "^0.0.21",
+    "@ayingott/eslint-config": "^0.5.4",
+    "@ayingott/prettier-config": "^0.1.1",
+    "@ayingott/sucrose": "^0.0.33",
     "@types/envinfo": "^7.8.1",
-    "@types/node": "^20.5.0",
+    "@types/node": "^20.5.9",
     "@types/prompts": "^2.4.4",
     "@types/rimraf": "^4.0.5",
-    "bumpp": "^9.1.1",
+    "bumpp": "^9.2.0",
     "cac": "^6.7.14",
     "chalk": "^5.3.0",
     "envinfo": "^7.10.0",
-    "eslint": "^8.47.0",
-    "execa": "^7.2.0",
-    "lint-staged": "^14.0.0",
-    "pnpm": "^8.6.12",
-    "prettier": "^3.0.1",
+    "eslint": "^8.48.0",
+    "execa": "^8.0.1",
+    "lint-staged": "^14.0.1",
+    "pnpm": "^8.7.4",
+    "prettier": "^3.0.3",
     "prompts": "^2.4.2",
     "rimraf": "^5.0.1",
     "simple-git-hooks": "^2.9.0",
     "taze": "^0.11.2",
     "tsup": "^7.2.0",
-    "typescript": "^5.1.6",
+    "typescript": "^5.2.2",
     "unplugin-auto-import": "^0.16.6",
-    "vitest": "^0.34.1",
-    "yaml": "^2.3.1"
+    "vitest": "^0.34.3",
+    "yaml": "^2.3.2"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged"
   },
   "lint-staged": {
-    "*": "eslint --fix"
+    "*": [
+      "eslint --fix",
+      "prettier --write --ignore-unknown"
+    ]
   },
-  "eslintConfig": {
-    "extends": "@ayingott/eslint-config",
-    "rules": {
-      "no-console": "off"
-    }
-  }
+  "prettier": "@ayingott/prettier-config"
 }
