@@ -92,14 +92,7 @@ export const addAction = async () => {
 
   writeFileSync(
     resolve(cwd(), "package.json"),
-    JSON.stringify(
-      defu(
-        {},
-        res.map((r) => r.pkgJson),
-      ),
-      null,
-      2,
-    ),
+    JSON.stringify(defu({}, ...res.map((r) => r.pkgJson)), null, 2),
     { encoding: "utf-8" },
   )
 
