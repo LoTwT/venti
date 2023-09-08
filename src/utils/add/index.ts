@@ -169,7 +169,7 @@ function handleESlint(pkgJson: PackageJson): DepHandlerResult {
   copyFileSync(
     resolve(
       __dirname,
-      `templates/eslint.config.${isTypeModule ? "mjs" : "cjs"}`,
+      `templates/eslint/eslint.config.${isTypeModule ? "mjs" : "cjs"}`,
     ),
     resolve(cwd(), "eslint.config.js"),
   )
@@ -328,7 +328,7 @@ async function handleVitest(pkgJson: PackageJson): Promise<DepHandlerResult> {
   }
 
   copyFileSync(
-    resolve(__dirname, "templates/vitest.config.ts"),
+    resolve(__dirname, "templates/vitest/vitest.config.ts"),
     resolve(cwd(), "vitest.config.ts"),
   )
 
