@@ -335,17 +335,24 @@ async function handleVitest(pkgJson: PackageJson): Promise<DepHandlerResult> {
     resolve(cwd(), "vitest.config.ts"),
   )
 
-  const tsconfig = await getTsconfigJson()
-  tsconfig.compilerOptions?.types?.push("vitest/globales")
-  writeFileSync(
-    resolve(cwd(), "tsconfig.json"),
-    JSON.stringify(tsconfig, null, 2),
-    { encoding: "utf-8" },
-  )
+  try {
+    const tsconfig = await getTsconfigJson()
+    tsconfig.compilerOptions?.types?.push("vitest/globales")
+    writeFileSync(
+      resolve(cwd(), "tsconfig.json"),
+      JSON.stringify(tsconfig, null, 2),
+      { encoding: "utf-8" },
+    )
 
-  return {
-    ...result,
-    msg: "vitest installed",
+    return {
+      ...result,
+      msg: "vitest installed",
+    }
+  } catch {
+    return {
+      ...result,
+      msg: "vitest installed, but tsconfig.json not found",
+    }
   }
 }
 
