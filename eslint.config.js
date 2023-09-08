@@ -2,8 +2,13 @@
 
 import { defineFlatEslintConfig } from "@ayingott/eslint-config"
 
-export default defineFlatEslintConfig({
-  rules: {
-    "no-console": "off",
+export default defineFlatEslintConfig([
+  {
+    rules: {
+      "no-console": "off",
+    },
   },
-})
+  {
+    ignores: ["**/templates/*"],
+  },
+])

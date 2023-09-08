@@ -35,6 +35,12 @@
     "up": "taze latest -I",
     "cli": "tsx ./src/bin/cli.mjs"
   },
+  "dependencies": {
+    "@clack/core": "^0.3.3",
+    "@clack/prompts": "^0.7.0",
+    "defu": "^6.1.2",
+    "pkg-types": "^1.0.3"
+  },
   "devDependencies": {
     "@ayingott/eslint-config": "^0.5.4",
     "@ayingott/prettier-config": "^0.1.1",

@@ -1,6 +1,6 @@
 import createCac from "cac"
-import { cloneAction, envAction } from "@/utils"
-import pkgJson from "../../package.json"
+import { addAction, cloneAction, envAction } from "@/utils"
+import pkgJson from "~/package.json"
 
 const cac = createCac("venti")
 
@@ -11,6 +11,8 @@ cac
   .option("-p, --platform [platform]", "github or gitlab")
   .option("-c, --clean", "clean clone without .git")
   .action(cloneAction)
+
+cac.command("add", "add dependencies").action(addAction)
 
 cac.help()
 

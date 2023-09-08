@@ -13,7 +13,8 @@
     "types": ["vitest/globals", "vitest/importMeta"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "~/*": ["./*"]
     }
   }
 }
