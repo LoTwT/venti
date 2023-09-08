@@ -107,6 +107,8 @@ export const addAction = async () => {
     stdio: "inherit",
   })
 
+  console.log("\n")
+
   res.forEach((r) => {
     console.log(r.msg)
   })
