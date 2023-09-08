@@ -5,12 +5,7 @@ import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import { type PackageJson, type TSConfig } from "pkg-types"
 import { execaSync } from "execa"
-import { ensureFileSync } from "fs-extra"
-import { type Nullable } from "@ayingott/sucrose"
-
-const isVSCode = !!process.env.VSCODE_PID
-
-let vscodeSettings: Nullable<Record<string, any>> = null
+import { ensureFile } from "fs-extra"
 
 const DepsMap = {
   ESLINT: "eslint",
@@ -74,9 +69,13 @@ export const addAction = async () => {
     },
   )
 
-  if (isVSCode) {
-    ensureFileSync(resolve(cwd(), ".vscode/settings.json"))
+  await ensureFile(resolve(cwd(), ".vscode/settings.json"))
+  let vscodeSettings
+
+  try {
     vscodeSettings = (await getJson(".vscode/settings.json")) ?? {}
+  } catch {
+    vscodeSettings = {}
   }
 
   const pkgJson = (await getJson("package.json")) as PackageJson
@@ -106,13 +105,15 @@ export const addAction = async () => {
     { encoding: "utf-8" },
   )
 
-  if (isVSCode && vscodeSettings) {
-    writeFileSync(
-      resolve(cwd(), ".vscode/settings.json"),
-      JSON.stringify(vscodeSettings, null, 2),
-      { encoding: "utf-8" },
-    )
-  }
+  writeFileSync(
+    resolve(cwd(), ".vscode/settings.json"),
+    JSON.stringify(
+      Object.assign(vscodeSettings, ...res.map((r) => r.vscodeSettings)),
+      null,
+      2,
+    ),
+    { encoding: "utf-8" },
+  )
 
   const depsToInstall = res
     .filter((r) => !r.existed)
@@ -148,6 +149,7 @@ interface DepHandlerResult {
   msg: string
   pkgJson: PackageJson
   deps: string[]
+  vscodeSettings?: Record<string, any>
 }
 
 function createDefaultDepHandlerResult(
@@ -194,13 +196,14 @@ function handleESlint(pkgJson: PackageJson): DepHandlerResult {
     resolve(cwd(), "eslint.config.js"),
   )
 
-  if (isVSCode) {
-    vscodeSettings!["eslint.experimental.useFlatConfig"] = true
+  const vscodeSettings = {
+    "eslint.experimental.useFlatConfig": true,
   }
 
   return {
     ...result,
     msg: "eslint installed",
+    vscodeSettings,
   }
 }
 
@@ -224,16 +227,17 @@ function handlePrettier(pkgJson: PackageJson): DepHandlerResult {
 
   result.pkgJson.prettier = "@ayingott/prettier-config"
 
-  if (isVSCode) {
-    vscodeSettings!["editor.formatOnSave"] = true
-    vscodeSettings!["editor.codeActionsOnSave"] = {
+  const vscodeSettings = {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
       "source.fixAll": true,
-    }
+    },
   }
 
   return {
     ...result,
     msg: "prettier installed",
+    vscodeSettings,
   }
 }
 
