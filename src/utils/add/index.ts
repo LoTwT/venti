@@ -5,6 +5,12 @@ import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import { type PackageJson, type TSConfig } from "pkg-types"
 import { execaSync } from "execa"
+import { ensureFileSync } from "fs-extra"
+import { type Nullable } from "@ayingott/sucrose"
+
+const isVSCode = !!process.env.VSCODE_PID
+
+let vscodeSettings: Nullable<Record<string, any>> = null
 
 const DepsMap = {
   ESLINT: "eslint",
@@ -68,7 +74,12 @@ export const addAction = async () => {
     },
   )
 
-  const pkgJson = await getPackageJson()
+  if (isVSCode) {
+    ensureFileSync(resolve(cwd(), ".vscode/settings.json"))
+    vscodeSettings = (await getJson(".vscode/settings.json")) ?? {}
+  }
+
+  const pkgJson = (await getJson("package.json")) as PackageJson
 
   const res = await Promise.all(
     deps
@@ -95,12 +106,22 @@ export const addAction = async () => {
     { encoding: "utf-8" },
   )
 
+  if (isVSCode && vscodeSettings) {
+    writeFileSync(
+      resolve(cwd(), ".vscode/settings.json"),
+      JSON.stringify(vscodeSettings, null, 2),
+      { encoding: "utf-8" },
+    )
+  }
+
   const depsToInstall = res
     .filter((r) => !r.existed)
     .reduce<string[]>((res, curr) => {
       res.push(...curr.deps)
       return res
     }, [])
+
+  console.log("\n")
 
   execaSync("pnpm", ["add", "--save-dev", ...depsToInstall], {
     stdio: "inherit",
@@ -115,12 +136,11 @@ export const addAction = async () => {
   outro(`🎉 ${chalk.bold(chalk.greenBright("All done!"))}`)
 }
 
-async function getPackageJson(cwdPath = cwd()) {
-  return (await import(resolve(cwdPath, "package.json"))) as PackageJson
-}
-
-async function getTsconfigJson(cwdPath = cwd()) {
-  return (await import(resolve(cwdPath, "tsconfig.json"))) as TSConfig
+async function getJson<T extends Record<string, any>>(
+  jsonPath: string,
+  cwdPath = cwd(),
+) {
+  return (await import(resolve(cwdPath, jsonPath))) as T
 }
 
 interface DepHandlerResult {
@@ -174,6 +194,10 @@ function handleESlint(pkgJson: PackageJson): DepHandlerResult {
     resolve(cwd(), "eslint.config.js"),
   )
 
+  if (isVSCode) {
+    vscodeSettings!["eslint.experimental.useFlatConfig"] = true
+  }
+
   return {
     ...result,
     msg: "eslint installed",
@@ -199,6 +223,13 @@ function handlePrettier(pkgJson: PackageJson): DepHandlerResult {
   }
 
   result.pkgJson.prettier = "@ayingott/prettier-config"
+
+  if (isVSCode) {
+    vscodeSettings!["editor.formatOnSave"] = true
+    vscodeSettings!["editor.codeActionsOnSave"] = {
+      "source.fixAll": true,
+    }
+  }
 
   return {
     ...result,
@@ -333,7 +364,7 @@ async function handleVitest(pkgJson: PackageJson): Promise<DepHandlerResult> {
   )
 
   try {
-    const tsconfig = await getTsconfigJson()
+    const tsconfig = (await getJson("tsconfig.json")) as TSConfig
     tsconfig.compilerOptions?.types?.push("vitest/globales")
     writeFileSync(
       resolve(cwd(), "tsconfig.json"),
