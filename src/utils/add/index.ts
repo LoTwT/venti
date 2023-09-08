@@ -6,9 +6,6 @@ import chalk from "chalk"
 import { type PackageJson, type TSConfig } from "pkg-types"
 import { execaSync } from "execa"
 import { defu } from "defu"
-import { getDirname } from "@ayingott/sucrose"
-
-const _dirname = getDirname(import.meta.url)
 
 const DepsMap = {
   ESLINT: "eslint",
@@ -177,7 +174,7 @@ function handleESlint(pkgJson: PackageJson): DepHandlerResult {
 
   copyFileSync(
     resolve(
-      _dirname,
+      __dirname,
       `templates/eslint.config.${isTypeModule ? "mjs" : "cjs"}`,
     ),
     resolve(cwd(), "eslint.config.js"),
@@ -337,7 +334,7 @@ async function handleVitest(pkgJson: PackageJson): Promise<DepHandlerResult> {
   }
 
   copyFileSync(
-    resolve(_dirname, "templates/vitest.config.ts"),
+    resolve(__dirname, "templates/vitest.config.ts"),
     resolve(cwd(), "vitest.config.ts"),
   )
 
