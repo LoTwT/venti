@@ -5,7 +5,6 @@ import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import { type PackageJson, type TSConfig } from "pkg-types"
 import { execaSync } from "execa"
-import { defu } from "defu"
 
 const DepsMap = {
   ESLINT: "eslint",
@@ -92,7 +91,7 @@ export const addAction = async () => {
 
   writeFileSync(
     resolve(cwd(), "package.json"),
-    JSON.stringify(defu({}, ...res.map((r) => r.pkgJson)), null, 2),
+    JSON.stringify(Object.assign({}, ...res.map((r) => r.pkgJson)), null, 2),
     { encoding: "utf-8" },
   )
 
@@ -234,7 +233,7 @@ function handleLintStaged(
   }
 
   result.pkgJson["lint-staged"] = {
-    "*": commands,
+    "*": [...commands],
   }
 
   return {
