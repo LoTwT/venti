@@ -17,7 +17,7 @@
   "keywords": [],
   "sideEffects": false,
   "bin": {
-    "venti": "./src/bin/cli.cjs"
+    "venti": "./dist/bin/index.cjs"
   },
   "files": [
     "dist"
