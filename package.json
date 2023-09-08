@@ -39,6 +39,7 @@
     "@clack/core": "^0.3.3",
     "@clack/prompts": "^0.7.0",
     "defu": "^6.1.2",
+    "fs-extra": "^11.1.1",
     "pkg-types": "^1.0.3"
   },
   "devDependencies": {
@@ -46,6 +47,7 @@
     "@ayingott/prettier-config": "^0.1.1",
     "@ayingott/sucrose": "^0.0.33",
     "@types/envinfo": "^7.8.1",
+    "@types/fs-extra": "^11.0.1",
     "@types/node": "^20.5.9",
     "@types/prompts": "^2.4.4",
     "@types/rimraf": "^4.0.5",

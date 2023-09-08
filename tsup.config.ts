@@ -1,3 +1,6 @@
+import { cwd } from "node:process"
+import { resolve } from "node:path"
+import { copy } from "fs-extra"
 import { defineConfig } from "tsup"
 
 export default defineConfig([
@@ -19,5 +22,11 @@ export default defineConfig([
     outDir: "dist/bin",
     splitting: true,
     cjsInterop: true,
+    onSuccess: async () => {
+      await copy(
+        resolve(cwd(), "src/utils/add/templates"),
+        resolve(cwd(), "dist/bin/templates"),
+      )
+    },
   },
 ])
