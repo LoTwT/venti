@@ -215,11 +215,12 @@ function handleESlint(pkgJson: PackageJson): DepHandlerResult {
   const callback = async () => {
     const isTypeModule = pkgJson.type === "module"
 
+    if (!isTypeModule) {
+      result.pkgJson.type = "module"
+    }
+
     await copyFile(
-      resolve(
-        __dirname,
-        `templates/eslint/eslint.config.${isTypeModule ? "mjs" : "cjs"}`,
-      ),
+      resolve(__dirname, `templates/eslint/eslint.config.mjs`),
       resolve(cwd(), "eslint.config.js"),
     )
   }
