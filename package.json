@@ -33,7 +33,8 @@
     "release": "bumpp && npm publish --access public",
     "prepare": "simple-git-hooks",
     "up": "taze latest -I",
-    "cli": "tsx ./src/bin/cli.mjs"
+    "cli": "tsx ./src/bin/cli.mjs",
+    "play": "pnpm -C playground run venti"
   },
   "dependencies": {
     "@clack/core": "^0.3.3",

@@ -1,0 +1,15 @@
+{
+  "name": "playground",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "main": "index.js",
+  "scripts": {
+    "venti": "venti"
+  },
+  "devDependencies": {
+    "@ayingott/venti": "workspace:*"
+  }
+}

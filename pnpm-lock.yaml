@@ -4,102 +4,110 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  '@clack/core':
-    specifier: ^0.3.3
-    version: 0.3.3
-  '@clack/prompts':
-    specifier: ^0.7.0
-    version: 0.7.0
-  defu:
-    specifier: ^6.1.2
-    version: 6.1.2
-  fs-extra:
-    specifier: ^11.1.1
-    version: 11.1.1
-  pkg-types:
-    specifier: ^1.0.3
-    version: 1.0.3
+importers:
 
-devDependencies:
-  '@ayingott/eslint-config':
-    specifier: ^0.5.4
-    version: 0.5.4(@typescript-eslint/parser@6.6.0)(eslint@8.48.0)(prettier@3.0.3)(typescript@5.2.2)
-  '@ayingott/prettier-config':
-    specifier: ^0.1.1
-    version: 0.1.1
-  '@ayingott/sucrose':
-    specifier: ^0.0.33
-    version: 0.0.33
-  '@types/envinfo':
-    specifier: ^7.8.1
-    version: 7.8.1
-  '@types/fs-extra':
-    specifier: ^11.0.1
-    version: 11.0.1
-  '@types/node':
-    specifier: ^20.5.9
-    version: 20.5.9
-  '@types/prompts':
-    specifier: ^2.4.4
-    version: 2.4.4
-  '@types/rimraf':
-    specifier: ^4.0.5
-    version: 4.0.5
-  bumpp:
-    specifier: ^9.2.0
-    version: 9.2.0
-  cac:
-    specifier: ^6.7.14
-    version: 6.7.14
-  chalk:
-    specifier: ^5.3.0
-    version: 5.3.0
-  envinfo:
-    specifier: ^7.10.0
-    version: 7.10.0
-  eslint:
-    specifier: ^8.48.0
-    version: 8.48.0
-  execa:
-    specifier: ^8.0.1
-    version: 8.0.1
-  lint-staged:
-    specifier: ^14.0.1
-    version: 14.0.1
-  pnpm:
-    specifier: ^8.7.4
-    version: 8.7.4
-  prettier:
-    specifier: ^3.0.3
-    version: 3.0.3
-  prompts:
-    specifier: ^2.4.2
-    version: 2.4.2
-  rimraf:
-    specifier: ^5.0.1
-    version: 5.0.1
-  simple-git-hooks:
-    specifier: ^2.9.0
-    version: 2.9.0
-  taze:
-    specifier: ^0.11.2
-    version: 0.11.2
-  tsup:
-    specifier: ^7.2.0
-    version: 7.2.0(typescript@5.2.2)
-  typescript:
-    specifier: ^5.2.2
-    version: 5.2.2
-  unplugin-auto-import:
-    specifier: ^0.16.6
-    version: 0.16.6
-  vitest:
-    specifier: ^0.34.3
-    version: 0.34.3
-  yaml:
-    specifier: ^2.3.2
-    version: 2.3.2
+  .:
+    dependencies:
+      '@clack/core':
+        specifier: ^0.3.3
+        version: 0.3.3
+      '@clack/prompts':
+        specifier: ^0.7.0
+        version: 0.7.0
+      defu:
+        specifier: ^6.1.2
+        version: 6.1.2
+      fs-extra:
+        specifier: ^11.1.1
+        version: 11.1.1
+      pkg-types:
+        specifier: ^1.0.3
+        version: 1.0.3
+    devDependencies:
+      '@ayingott/eslint-config':
+        specifier: ^0.5.4
+        version: 0.5.4(@typescript-eslint/parser@6.6.0)(eslint@8.48.0)(prettier@3.0.3)(typescript@5.2.2)
+      '@ayingott/prettier-config':
+        specifier: ^0.1.1
+        version: 0.1.1
+      '@ayingott/sucrose':
+        specifier: ^0.0.33
+        version: 0.0.33
+      '@types/envinfo':
+        specifier: ^7.8.1
+        version: 7.8.1
+      '@types/fs-extra':
+        specifier: ^11.0.1
+        version: 11.0.1
+      '@types/node':
+        specifier: ^20.5.9
+        version: 20.5.9
+      '@types/prompts':
+        specifier: ^2.4.4
+        version: 2.4.4
+      '@types/rimraf':
+        specifier: ^4.0.5
+        version: 4.0.5
+      bumpp:
+        specifier: ^9.2.0
+        version: 9.2.0
+      cac:
+        specifier: ^6.7.14
+        version: 6.7.14
+      chalk:
+        specifier: ^5.3.0
+        version: 5.3.0
+      envinfo:
+        specifier: ^7.10.0
+        version: 7.10.0
+      eslint:
+        specifier: ^8.48.0
+        version: 8.48.0
+      execa:
+        specifier: ^8.0.1
+        version: 8.0.1
+      lint-staged:
+        specifier: ^14.0.1
+        version: 14.0.1
+      pnpm:
+        specifier: ^8.7.4
+        version: 8.7.4
+      prettier:
+        specifier: ^3.0.3
+        version: 3.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      rimraf:
+        specifier: ^5.0.1
+        version: 5.0.1
+      simple-git-hooks:
+        specifier: ^2.9.0
+        version: 2.9.0
+      taze:
+        specifier: ^0.11.2
+        version: 0.11.2
+      tsup:
+        specifier: ^7.2.0
+        version: 7.2.0(typescript@5.2.2)
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
+      unplugin-auto-import:
+        specifier: ^0.16.6
+        version: 0.16.6
+      vitest:
+        specifier: ^0.34.3
+        version: 0.34.3
+      yaml:
+        specifier: ^2.3.2
+        version: 2.3.2
+
+  playground:
+    devDependencies:
+      '@ayingott/venti':
+        specifier: workspace:*
+        version: link:..
 
 packages:
 
