@@ -69,8 +69,6 @@ export const addAction = async () => {
     },
   )
 
-  const vscodeSettings = await ensureAndImportJson(".vscode/settings.json")
-  const tsconfig = await ensureAndImportJson<TSConfig>("tsconfig.json")
   const pkgJson = await ensureAndImportJson<PackageJson>("package.json")
 
   const res = await Promise.all(
@@ -91,6 +89,9 @@ export const addAction = async () => {
     outro(`🎉 ${chalk.bold(chalk.greenBright("All deps already exists!"))} 🎉`)
     exit(0)
   }
+
+  const vscodeSettings = await ensureAndImportJson(".vscode/settings.json")
+  const tsconfig = await ensureAndImportJson<TSConfig>("tsconfig.json")
 
   await Promise.all(
     [
