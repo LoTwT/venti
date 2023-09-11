@@ -129,6 +129,11 @@ export const addAction = async () => {
     stdio: "inherit",
   })
 
+  // to register simple-git-hooks
+  execaSync("pnpm", ["install"], {
+    stdio: "inherit",
+  })
+
   console.log("\n")
 
   res.forEach((r) => {
