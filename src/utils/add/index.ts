@@ -5,6 +5,7 @@ import chalk from "chalk"
 import { type PackageJson, type TSConfig } from "pkg-types"
 import { execaSync } from "execa"
 import { copyFile, ensureFile, writeFile } from "fs-extra"
+import defu from "defu"
 
 const DepsMap = {
   ESLINT: "eslint",
@@ -95,7 +96,7 @@ export const addAction = async () => {
     [
       {
         p: "package.json",
-        d: Object.assign({}, ...res.map((r) => r.pkgJson)),
+        d: defu(pkgJson, ...res.map((r) => r.pkgJson)),
       },
       {
         p: ".vscode/settings.json",
