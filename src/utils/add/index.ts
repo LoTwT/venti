@@ -1,11 +1,10 @@
 import { cwd, exit } from "node:process"
 import { resolve } from "node:path"
-import { copyFileSync, writeFileSync } from "node:fs"
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import { type PackageJson, type TSConfig } from "pkg-types"
 import { execaSync } from "execa"
-import { ensureFile } from "fs-extra"
+import { copyFile, ensureFile, writeFile } from "fs-extra"
 
 const DepsMap = {
   ESLINT: "eslint",
@@ -69,21 +68,14 @@ export const addAction = async () => {
     },
   )
 
-  await ensureFile(resolve(cwd(), ".vscode/settings.json"))
-  let vscodeSettings
-
-  try {
-    vscodeSettings = (await getJson(".vscode/settings.json")) ?? {}
-  } catch {
-    vscodeSettings = {}
-  }
-
-  const pkgJson = (await getJson("package.json")) as PackageJson
+  const vscodeSettings = await ensureAndImportJson(".vscode/settings.json")
+  const tsconfig = await ensureAndImportJson<TSConfig>("tsconfig.json")
+  const pkgJson = await ensureAndImportJson<PackageJson>("package.json")
 
   const res = await Promise.all(
     deps
       .filter((d) => d !== (DepsMap.LINT_STAGED || DepsMap.SIMPLE_GIT_HOOKS))
-      .map(async (dep) => await depHandlers?.[dep]?.(pkgJson, deps)),
+      .map((dep) => depHandlers?.[dep]?.(pkgJson, deps)),
   )
 
   if (deps.includes(DepsMap.LINT_STAGED)) {
@@ -99,26 +91,33 @@ export const addAction = async () => {
     exit(0)
   }
 
-  writeFileSync(
-    resolve(cwd(), "package.json"),
-    JSON.stringify(Object.assign({}, ...res.map((r) => r.pkgJson)), null, 2),
-    { encoding: "utf-8" },
+  await Promise.all(
+    [
+      {
+        p: "package.json",
+        d: Object.assign({}, ...res.map((r) => r.pkgJson)),
+      },
+      {
+        p: ".vscode/settings.json",
+        d: Object.assign(vscodeSettings, ...res.map((r) => r.vscodeSettings)),
+      },
+      {
+        p: "tsconfig.json",
+        d: Object.assign(tsconfig, ...res.map((r) => r.tsconfig)),
+      },
+    ].map(async (obj) => {
+      await writeFile(resolve(cwd(), obj.p), JSON.stringify(obj.d, null, 2), {
+        encoding: "utf-8",
+      })
+    }),
   )
 
-  writeFileSync(
-    resolve(cwd(), ".vscode/settings.json"),
-    JSON.stringify(
-      Object.assign(vscodeSettings, ...res.map((r) => r.vscodeSettings)),
-      null,
-      2,
-    ),
-    { encoding: "utf-8" },
-  )
+  await Promise.all(res.filter((r) => r.callback).map((r) => r.callback?.()))
 
   const depsToInstall = res
     .filter((r) => !r.existed)
     .reduce<string[]>((res, curr) => {
-      res.push(...curr.deps)
+      res.push(...curr.depsToInstall)
       return res
     }, [])
 
@@ -144,23 +143,43 @@ async function getJson<T extends Record<string, any>>(
   return (await import(resolve(cwdPath, jsonPath))) as T
 }
 
+async function ensureAndImportJson<T extends Record<string, any>>(
+  jsonPath: string,
+  cwdPath = cwd(),
+) {
+  await ensureFile(resolve(cwdPath, jsonPath))
+
+  let json
+
+  try {
+    json = await getJson(jsonPath, cwdPath)
+  } catch {
+    json = {}
+  }
+
+  return json as T
+}
+
 interface DepHandlerResult {
   existed: boolean
   msg: string
+  depsToInstall: string[]
+
   pkgJson: PackageJson
-  deps: string[]
+  tsconfig?: TSConfig
   vscodeSettings?: Record<string, any>
+
+  callback?: () => Promise<void>
+  // TODO
+  fallback?: () => Promise<void>
 }
 
-function createDefaultDepHandlerResult(
-  pkgJson: PackageJson,
-  deps: string[] = [],
-): DepHandlerResult {
+function createDefaultDepHandlerResult(): DepHandlerResult {
   return {
     existed: false,
     msg: "",
-    pkgJson,
-    deps,
+    pkgJson: {},
+    depsToInstall: [],
   }
 }
 
@@ -168,63 +187,67 @@ function hasDep(pkgJson: PackageJson, dep: string) {
   return pkgJson.dependencies?.[dep] || pkgJson.devDependencies?.[dep]
 }
 
+function hasDepToHandle(deps: string[], dep: string) {
+  return deps.includes(dep)
+}
+
 function handleESlint(pkgJson: PackageJson): DepHandlerResult {
-  const result = createDefaultDepHandlerResult(pkgJson)
+  const result = createDefaultDepHandlerResult()
 
   if (hasDep(pkgJson, DepsMap.ESLINT)) {
     return {
       ...result,
       existed: true,
-      msg: "eslint already exists",
+      msg: "🍟 ESLint already exists",
     }
   }
 
-  result.deps.push(DepsMap.ESLINT, "@ayingott/eslint-config")
+  result.depsToInstall.push(DepsMap.ESLINT, "@ayingott/eslint-config")
 
   result.pkgJson.scripts = {
-    ...result.pkgJson.scripts,
     lint: "eslint .",
   }
-
-  const isTypeModule = result.pkgJson.type === "module"
-
-  copyFileSync(
-    resolve(
-      __dirname,
-      `templates/eslint/eslint.config.${isTypeModule ? "mjs" : "cjs"}`,
-    ),
-    resolve(cwd(), "eslint.config.js"),
-  )
 
   const vscodeSettings = {
     "eslint.experimental.useFlatConfig": true,
   }
 
+  const callback = async () => {
+    const isTypeModule = pkgJson.type === "module"
+
+    await copyFile(
+      resolve(
+        __dirname,
+        `templates/eslint/eslint.config.${isTypeModule ? "mjs" : "cjs"}`,
+      ),
+      resolve(cwd(), "eslint.config.js"),
+    )
+  }
+
   return {
     ...result,
-    msg: "eslint installed",
+    msg: "🎉 eslint installed",
     vscodeSettings,
+    callback,
   }
 }
 
 function handlePrettier(pkgJson: PackageJson): DepHandlerResult {
-  const result = createDefaultDepHandlerResult(pkgJson)
+  const result = createDefaultDepHandlerResult()
 
   if (hasDep(pkgJson, DepsMap.PRETTIER)) {
     return {
       ...result,
       existed: true,
-      msg: "prettier already exists",
+      msg: "🍟 prettier already exists",
     }
   }
 
-  result.deps.push(DepsMap.PRETTIER, "@ayingott/prettier-config")
+  result.depsToInstall.push(DepsMap.PRETTIER, "@ayingott/prettier-config")
 
   result.pkgJson.scripts = {
-    ...result.pkgJson.scripts,
     prettier: "prettier --write .",
   }
-
   result.pkgJson.prettier = "@ayingott/prettier-config"
 
   const vscodeSettings = {
@@ -236,7 +259,7 @@ function handlePrettier(pkgJson: PackageJson): DepHandlerResult {
 
   return {
     ...result,
-    msg: "prettier installed",
+    msg: "🎉 prettier installed",
     vscodeSettings,
   }
 }
@@ -245,17 +268,17 @@ function handleLintStaged(
   pkgJson: PackageJson,
   deps: string[],
 ): DepHandlerResult {
-  const result = createDefaultDepHandlerResult(pkgJson)
+  const result = createDefaultDepHandlerResult()
 
   if (hasDep(pkgJson, DepsMap.LINT_STAGED)) {
     return {
       ...result,
       existed: true,
-      msg: "lint-staged already exists",
+      msg: "🍟 lint-staged already exists",
     }
   }
 
-  result.deps.push(DepsMap.LINT_STAGED)
+  result.depsToInstall.push(DepsMap.LINT_STAGED)
 
   const commands: string[] = []
 
@@ -273,7 +296,7 @@ function handleLintStaged(
 
   return {
     ...result,
-    msg: "lint-staged installed",
+    msg: "🎉 lint-staged installed",
   }
 }
 
@@ -281,17 +304,17 @@ function handleSimpleGitHooks(
   pkgJson: PackageJson,
   deps: string[],
 ): DepHandlerResult {
-  const result = createDefaultDepHandlerResult(pkgJson)
+  const result = createDefaultDepHandlerResult()
 
   if (hasDep(pkgJson, DepsMap.SIMPLE_GIT_HOOKS)) {
     return {
       ...result,
       existed: true,
-      msg: "simple-git-hooks already exists",
+      msg: "🍟 simple-git-hooks already exists",
     }
   }
 
-  result.deps.push(DepsMap.SIMPLE_GIT_HOOKS)
+  result.depsToInstall.push(DepsMap.SIMPLE_GIT_HOOKS)
 
   result.pkgJson.scripts = {
     ...result.pkgJson.scripts,
@@ -303,8 +326,12 @@ function handleSimpleGitHooks(
 
   if (hasLintStaged) command = "pnpm exec lint-staged"
   else {
-    if (hasDep(pkgJson, DepsMap.ESLINT)) command = "pnpm run lint"
-    if (hasDep(pkgJson, DepsMap.PRETTIER))
+    if (hasDep(pkgJson, DepsMap.ESLINT) || hasDepToHandle(deps, DepsMap.ESLINT))
+      command = "pnpm run lint"
+    if (
+      hasDep(pkgJson, DepsMap.PRETTIER) ||
+      hasDepToHandle(deps, DepsMap.PRETTIER)
+    )
       command =
         command === "" ? "pnpm run prettier" : `${command} && pnpm run prettier`
   }
@@ -315,91 +342,85 @@ function handleSimpleGitHooks(
 
   return {
     ...result,
-    msg: "simple-git-hooks installed",
+    msg: "🎉 simple-git-hooks installed",
   }
 }
 
 function handleBumpp(pkgJson: PackageJson): DepHandlerResult {
-  const result = createDefaultDepHandlerResult(pkgJson)
+  const result = createDefaultDepHandlerResult()
 
   if (hasDep(pkgJson, DepsMap.BUMPP)) {
     return {
       ...result,
       existed: true,
-      msg: "bumpp already exists",
+      msg: "🍟 bumpp already exists",
     }
   }
 
-  result.deps.push(DepsMap.BUMPP)
+  result.depsToInstall.push(DepsMap.BUMPP)
 
   result.pkgJson.scripts = {
-    ...result.pkgJson.scripts,
     prepublishOnly: "pnpm build",
     release: "bumpp && pnpm publish",
   }
 
   return {
     ...result,
-    msg: "bumpp installed",
+    msg: "🎉 bumpp installed",
   }
 }
 
-async function handleVitest(pkgJson: PackageJson): Promise<DepHandlerResult> {
-  const result = createDefaultDepHandlerResult(pkgJson)
+function handleVitest(pkgJson: PackageJson): DepHandlerResult {
+  const result = createDefaultDepHandlerResult()
 
   if (hasDep(pkgJson, DepsMap.VITEST)) {
     return {
       ...result,
       existed: true,
-      msg: "vitest already exists",
+      msg: "🍟 vitest already exists",
     }
   }
 
-  result.deps.push(DepsMap.VITEST, "unplugin-auto-import")
+  result.depsToInstall.push(DepsMap.VITEST, "unplugin-auto-import")
 
   result.pkgJson.scripts = {
     ...result.pkgJson.scripts,
     test: "vitest",
   }
 
-  copyFileSync(
-    resolve(__dirname, "templates/vitest/vitest.config.ts"),
-    resolve(cwd(), "vitest.config.ts"),
-  )
-
-  try {
-    const tsconfig = (await getJson("tsconfig.json")) as TSConfig
-    tsconfig.compilerOptions?.types?.push("vitest/globales")
-    writeFileSync(
-      resolve(cwd(), "tsconfig.json"),
-      JSON.stringify(tsconfig, null, 2),
-      { encoding: "utf-8" },
+  const callback = async () => {
+    await copyFile(
+      resolve(__dirname, "templates/vitest/vitest.config.ts"),
+      resolve(cwd(), "vitest.config.ts"),
     )
+  }
 
-    return {
-      ...result,
-      msg: "vitest installed",
-    }
-  } catch {
-    return {
-      ...result,
-      msg: "vitest installed, but tsconfig.json not found",
-    }
+  const tsconfig: TSConfig = {
+    compilerOptions: {
+      types: ["vitest/globales"],
+    },
+  }
+
+  return {
+    ...result,
+    msg: "🎉 vitest installed",
+    tsconfig,
+    callback,
   }
 }
 
 function handleTaze(pkgJson: PackageJson): DepHandlerResult {
-  const result = createDefaultDepHandlerResult(pkgJson)
+  const result = createDefaultDepHandlerResult()
 
   if (hasDep(pkgJson, DepsMap.TAZE)) {
     return {
       ...result,
       existed: true,
-      msg: "taze already exists",
+      msg: "🍟 taze already exists",
     }
   }
 
-  result.deps.push(DepsMap.TAZE)
+  result.depsToInstall.push(DepsMap.TAZE)
 
   result.pkgJson.scripts = {
     ...result.pkgJson.scripts,
@@ -408,6 +429,6 @@ function handleTaze(pkgJson: PackageJson): DepHandlerResult {
 
   return {
     ...result,
-    msg: "taze installed",
+    msg: "🎉 taze installed",
   }
 }
