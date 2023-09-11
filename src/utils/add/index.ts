@@ -97,7 +97,7 @@ export const addAction = async () => {
     [
       {
         p: "package.json",
-        d: defu(pkgJson, ...res.map((r) => r.pkgJson)),
+        d: defu({}, ...res.map((r) => r.pkgJson), pkgJson),
       },
       {
         p: ".vscode/settings.json",
@@ -209,18 +209,13 @@ function handleESlint(pkgJson: PackageJson): DepHandlerResult {
   result.pkgJson.scripts = {
     lint: "eslint .",
   }
+  result.pkgJson.type = "module"
 
   const vscodeSettings = {
     "eslint.experimental.useFlatConfig": true,
   }
 
   const callback = async () => {
-    const isTypeModule = pkgJson.type === "module"
-
-    if (!isTypeModule) {
-      result.pkgJson.type = "module"
-    }
-
     await copyFile(
       resolve(__dirname, `templates/eslint/eslint.config.mjs`),
       resolve(cwd(), "eslint.config.js"),
