@@ -1,8 +1,8 @@
 //@ts-check
 
-import { defineFlatEslintConfig } from "@ayingott/eslint-config"
+import { defineFlatConfig } from "@ayingott/eslint-config"
 
-export default defineFlatEslintConfig([
+export default defineFlatConfig([
   {
     rules: {
       "no-console": "off",
