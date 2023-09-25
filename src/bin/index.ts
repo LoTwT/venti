@@ -1,5 +1,5 @@
 import createCac from "cac"
-import { addAction, cloneAction, envAction } from "@/utils"
+import { addAction, cloneAction, envAction, shellAction } from "@/utils"
 import pkgJson from "~/package.json"
 
 const cac = createCac("venti")
@@ -13,6 +13,8 @@ cac
   .action(cloneAction)
 
 cac.command("add", "add dependencies").action(addAction)
+
+cac.command("shell", "run shell update").action(shellAction)
 
 cac.help()
 
