@@ -30,6 +30,7 @@ export const shellAction = async () => {
             label: key,
             hint: value,
           })),
+          initialValues: Object.values(ShellCommands),
         }),
     },
     {

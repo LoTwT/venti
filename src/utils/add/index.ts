@@ -59,6 +59,7 @@ export const addAction = async () => {
             { value: DepsMap.VITEST, label: "vitest" },
             { value: DepsMap.TAZE, label: "taze" },
           ],
+          initialValues: Object.values(DepsMap),
         }),
     },
     {
