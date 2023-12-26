@@ -2,7 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import envinfo from "envinfo"
-import { type Nullable } from "@ayingott/sucrose"
+import type { Nullable } from "@ayingott/sucrose"
 
 const infoStrategies: Record<string, (...args: any) => string> = {
   System: (info: Record<string, any>) => {

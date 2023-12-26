@@ -5,7 +5,7 @@ import prompts from "prompts"
 import { execa } from "execa"
 import chalk from "chalk"
 import * as rimraf from "rimraf"
-import { type MayBeUndefined } from "@ayingott/sucrose"
+import type { MayBeUndefined } from "@ayingott/sucrose"
 
 const { bold, red, yellow, cyan, green } = chalk
 

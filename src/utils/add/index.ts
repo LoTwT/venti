@@ -2,10 +2,10 @@ import { cwd, exit } from "node:process"
 import { resolve } from "node:path"
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
-import { type PackageJson, type TSConfig } from "pkg-types"
 import { execaSync } from "execa"
 import { copyFile, ensureFile, writeFile } from "fs-extra"
 import defu from "defu"
+import type { PackageJson, TSConfig } from "pkg-types"
 
 const DepsMap = {
   ESLINT: "eslint",
