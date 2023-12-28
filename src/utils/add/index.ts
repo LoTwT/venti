@@ -3,7 +3,7 @@ import { resolve } from "node:path"
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import { execaSync } from "execa"
-import { copyFile, ensureFile, remove, writeFile } from "fs-extra"
+import { copyFile, ensureFile, readFile, remove, writeFile } from "fs-extra"
 import defu from "defu"
 import type { PackageJson, TSConfig } from "pkg-types"
 
@@ -154,7 +154,16 @@ async function getJson<T extends Record<string, any>>(
   jsonPath: string,
   cwdPath = cwd(),
 ) {
-  return (await import(resolve(cwdPath, jsonPath))) as T
+  const p = resolve(cwdPath, jsonPath)
+  let json
+
+  try {
+    json = JSON.parse(await readFile(p, { encoding: "utf-8" }))
+  } catch {
+    json = {}
+  }
+
+  return json as T
 }
 
 async function ensureAndImportJson<T extends Record<string, any>>(
