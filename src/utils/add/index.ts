@@ -3,7 +3,7 @@ import { resolve } from "node:path"
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import { execaSync } from "execa"
-import { copyFile, ensureFile, writeFile } from "fs-extra"
+import { copyFile, ensureFile, remove, writeFile } from "fs-extra"
 import defu from "defu"
 import type { PackageJson, TSConfig } from "pkg-types"
 
@@ -109,9 +109,15 @@ export const addAction = async () => {
         d: Object.assign(tsconfig, ...res.map((r) => r.tsconfig)),
       },
     ].map(async (obj) => {
-      await writeFile(resolve(cwd(), obj.p), JSON.stringify(obj.d, null, 2), {
-        encoding: "utf-8",
-      })
+      const jsonPath = resolve(cwd(), obj.p)
+
+      if (Object.keys(obj.d).length === 0) {
+        await remove(jsonPath)
+      } else {
+        await writeFile(jsonPath, JSON.stringify(obj.d, null, 2), {
+          encoding: "utf-8",
+        })
+      }
     }),
   )
 
@@ -257,7 +263,7 @@ function handlePrettier(pkgJson: PackageJson): DepHandlerResult {
   const vscodeSettings = {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll": true,
+      "source.fixAll": "explicit",
     },
   }
 
