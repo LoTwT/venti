@@ -1,6 +1,6 @@
 {
   "name": "@ayingott/venti",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "venti",
   "type": "module",
   "packageManager": "pnpm@8.15.3",
