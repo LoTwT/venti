@@ -443,7 +443,7 @@ function handleTaze(pkgJson: PackageJson): DepHandlerResult {
 
   result.pkgJson.scripts = {
     ...result.pkgJson.scripts,
-    up: "taze latest -I",
+    up: "taze latest -I -f",
   }
 
   return {
