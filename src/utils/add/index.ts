@@ -3,7 +3,14 @@ import { resolve } from "node:path"
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import { execaSync } from "execa"
-import { copyFile, ensureFile, readFile, remove, writeFile } from "fs-extra"
+import {
+  copyFile,
+  ensureFile,
+  exists,
+  readFile,
+  remove,
+  writeFile,
+} from "fs-extra"
 import defu from "defu"
 import type { PackageJson, TSConfig } from "pkg-types"
 
@@ -132,9 +139,20 @@ export const addAction = async () => {
 
   console.log("\n")
 
-  execaSync("pnpm", ["add", "--save-dev", ...depsToInstall], {
-    stdio: "inherit",
-  })
+  const isMonorepo = await exists(resolve(cwd(), "pnpm-workspace.yaml"))
+
+  execaSync(
+    "pnpm",
+    [
+      "add",
+      "--save-dev",
+      isMonorepo ? "--workspace-root" : "",
+      ...depsToInstall,
+    ],
+    {
+      stdio: "inherit",
+    },
+  )
 
   // to register simple-git-hooks
   execaSync("pnpm", ["install"], {
