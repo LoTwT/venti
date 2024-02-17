@@ -1,3 +1,10 @@
-const eslintConfig = require("@ayingott/eslint-config")
+// @ts-check
 
-module.exports = eslintConfig
+const { defineFlatConfig } = require("@ayingott/eslint-config")
+
+module.exports = defineFlatConfig([], {
+  prettier: true,
+  vue: false,
+  unocss: false,
+  react: false,
+})

@@ -1,5 +1,10 @@
 // @ts-check
 
-import eslintConfig from "@ayingott/eslint-config"
+import { defineFlatConfig } from "@ayingott/eslint-config"
 
-export default eslintConfig
+export default defineFlatConfig([], {
+  prettier: true,
+  vue: false,
+  unocss: false,
+  react: false,
+})
