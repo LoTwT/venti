@@ -106,7 +106,7 @@ export const addAction = async () => {
       },
       {
         p: "tsconfig.json",
-        d: Object.assign(tsconfig, ...res.map((r) => r.tsconfig)),
+        d: Object.assign(tsconfig, ...res.map((r) => r.tsconfig || {})),
       },
     ].map(async (obj) => {
       const jsonPath = resolve(cwd(), obj.p)
@@ -203,6 +203,7 @@ function createDefaultDepHandlerResult(): DepHandlerResult {
     msg: "",
     pkgJson: {},
     depsToInstall: [],
+    tsconfig: {},
   }
 }
 
