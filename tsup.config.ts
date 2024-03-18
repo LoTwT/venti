@@ -7,21 +7,21 @@ export default defineConfig([
   {
     entry: ["./src/index.ts"],
     format: ["esm", "cjs"],
-    clean: true,
     target: "esnext",
+    clean: true,
+    cjsInterop: true,
     dts: true,
     splitting: true,
-    cjsInterop: true,
   },
   {
     entry: ["./src/bin/index.ts"],
     format: ["cjs"],
-    clean: true,
     target: "esnext",
-    dts: false,
-    outDir: "dist/bin",
-    splitting: true,
+    clean: true,
     cjsInterop: true,
+    dts: false,
+    splitting: true,
+    outDir: "dist/bin",
     onSuccess: async () => {
       await copy(
         resolve(cwd(), "src/utils/add/templates"),
