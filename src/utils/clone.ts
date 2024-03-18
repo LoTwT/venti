@@ -85,6 +85,6 @@ ${bold(
     )
   } catch {
     console.error(`\n${bold(red(`❌ fail to clone ${yellow(repoPath)} !`))}`)
-    processExit()
+    exitProcess()
   }
 }
