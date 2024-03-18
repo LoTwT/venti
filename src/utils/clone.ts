@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import process from "node:process"
-import { processExit } from "@ayingott/sucrose"
+import { exitProcess } from "@ayingott/sucrose"
 import prompts from "prompts"
 import { execa } from "execa"
 import chalk from "chalk"
@@ -29,11 +29,11 @@ export const concatRepoPath = (repo: string, platform: Platform) => {
 
   if (platform === "gitlab") {
     console.log(bold(cyan("✨ Clone Gitlab repo is WIP.")))
-    processExit()
+    exitProcess()
   }
 
   console.error(bold(red("❌ Invalid platform")))
-  processExit()
+  exitProcess()
 }
 
 export const cloneAction = async (
