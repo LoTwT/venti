@@ -428,7 +428,7 @@ function handleVitest(pkgJson: PackageJson): DepHandlerResult {
 
   const callback = async () => {
     await copyFile(
-      resolve(__dirname, "templates/vitest/vitest.config.ts"),
+      resolve(__dirname, "templates/vitest/template.ts"),
       resolve(cwd(), "vitest.config.ts"),
     )
   }
