@@ -4,7 +4,7 @@ import chalk from "chalk"
 import { execaCommand } from "execa"
 
 const ShellCommands = {
-  pnpm: "pnpm i pnpm -g",
+  // pnpm: "pnpm i pnpm -g",
   "pnpm-update": "pnpm update -gL",
   brew: "brew upgrade",
   rust: "rustup update",
