@@ -37,6 +37,7 @@
     "watch": "tsup --watch"
   },
   "dependencies": {
+    "@antfu/ni": "^0.21.12",
     "@clack/core": "^0.3.4",
     "@clack/prompts": "^0.7.0",
     "defu": "^6.1.4",

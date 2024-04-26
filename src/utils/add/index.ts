@@ -142,20 +142,15 @@ export const addAction = async () => {
   const isMonorepo = await exists(resolve(cwd(), "pnpm-workspace.yaml"))
 
   execaSync(
-    "pnpm",
-    [
-      "add",
-      "--save-dev",
-      isMonorepo ? "--workspace-root" : "",
-      ...depsToInstall,
-    ],
+    "ni",
+    ["--save-dev", isMonorepo ? "--workspace-root" : "", ...depsToInstall],
     {
       stdio: "inherit",
     },
   )
 
   // to register simple-git-hooks
-  execaSync("pnpm", ["install"], {
+  execaSync("ni", {
     stdio: "inherit",
   })
 
