@@ -6,12 +6,12 @@ import { execaCommand } from "execa"
 const ShellCommands = {
   // pnpm: "pnpm i pnpm -g",
   "pnpm-update": "pnpm update -gL",
-  brew: "brew upgrade",
-  rust: "rustup update",
-  bun: "bun upgrade",
+  "brew": "brew upgrade",
+  "rust": "rustup update",
+  "bun": "bun upgrade",
 }
 
-export const shellAction = async () => {
+export async function shellAction() {
   intro(
     `🍉 ${chalk.bold(
       `${chalk.cyanBright("Follow the wind")} and ${chalk.blueBright(

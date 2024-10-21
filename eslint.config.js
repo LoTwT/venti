@@ -1,22 +1,10 @@
-//@ts-check
+// @ts-check
 
-import { defineFlatConfig } from "@ayingott/eslint-config"
+import { defineConfig } from "@ayingott/eslint-config/antfu"
 
-export default defineFlatConfig(
-  [
-    {
-      rules: {
-        "no-console": "off",
-      },
-    },
-    {
-      ignores: ["**/templates/*"],
-    },
-  ],
-  {
-    vue: false,
-    react: false,
-    unocss: false,
-    prettier: true,
+export default defineConfig({
+  rules: {
+    "no-console": "off",
   },
-)
+  ignores: ["**/templates/**"],
+})

@@ -1,8 +1,8 @@
+import type { Nullable } from "@ayingott/sucrose"
 import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import envinfo from "envinfo"
-import type { Nullable } from "@ayingott/sucrose"
 
 const infoStrategies: Record<string, (...args: any) => string> = {
   System: (info: Record<string, any>) => {
@@ -36,7 +36,7 @@ ${npmPackages.reduce(
   },
 }
 
-const getPackageManager = async () => {
+async function getPackageManager() {
   const packageJsonPath = path.resolve(process.cwd(), "package.json")
 
   let packageManager: Nullable<string> = null
@@ -47,13 +47,14 @@ const getPackageManager = async () => {
   return packageManager
 }
 
-const getResult = (info: Record<string, any>) =>
-  ["System", "Binaries", "npmPackages"].reduce(
+function getResult(info: Record<string, any>) {
+  return ["System", "Binaries", "npmPackages"].reduce(
     (prev, curr) => `${prev}\n${infoStrategies?.[curr]?.(info)}`,
     "",
   )
+}
 
-export const envAction = async () => {
+export async function envAction() {
   const res = await envinfo.run(
     {
       System: ["OS"],

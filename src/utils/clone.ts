@@ -1,11 +1,11 @@
+import type { MayBeUndefined } from "@ayingott/sucrose"
 import fs from "node:fs"
 import process from "node:process"
 import { exitProcess } from "@ayingott/sucrose"
-import prompts from "prompts"
-import { execa } from "execa"
 import chalk from "chalk"
+import { execa } from "execa"
+import prompts from "prompts"
 import * as rimraf from "rimraf"
-import type { MayBeUndefined } from "@ayingott/sucrose"
 
 const { bold, red, yellow, cyan, green } = chalk
 
@@ -18,13 +18,14 @@ interface CloneActionOptions {
   clean: MayBeUndefined<boolean>
 }
 
-const REPO_RE = /^[\dA-Za-z][\dA-Za-z\-]*[\dA-Za-z]?\/[\w.\-]+$/
+const REPO_RE = /^[\dA-Z][\dA-Z\-]*\/[\w.\-]+$/i
 export const validateRepo = (repo: string) => REPO_RE.test(repo)
 
-export const ensureDotGit = (repo: string) =>
-  !repo.endsWith(".git") ? `${repo}.git` : repo
+export function ensureDotGit(repo: string) {
+  return !repo.endsWith(".git") ? `${repo}.git` : repo
+}
 
-export const concatRepoPath = (repo: string, platform: Platform) => {
+export function concatRepoPath(repo: string, platform: Platform) {
   if (platform === "github") return `${GithubPrefix}${repo}`
 
   if (platform === "gitlab") {
@@ -36,11 +37,12 @@ export const concatRepoPath = (repo: string, platform: Platform) => {
   exitProcess()
 }
 
-export const cloneAction = async (
+export async function cloneAction(
   repo: string,
   dirname: MayBeUndefined<string>,
+
   options: CloneActionOptions,
-) => {
+) {
   const { platform = "github", clean = false } = options
 
   if (!repo || !validateRepo(repo)) {

@@ -1,7 +1,9 @@
-import { cwd, exit } from "node:process"
+import type { PackageJson, TSConfig } from "pkg-types"
 import { resolve } from "node:path"
+import { cwd, exit } from "node:process"
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
+import defu from "defu"
 import { execaSync } from "execa"
 import {
   copyFile,
@@ -11,8 +13,6 @@ import {
   remove,
   writeFile,
 } from "fs-extra"
-import defu from "defu"
-import type { PackageJson, TSConfig } from "pkg-types"
 
 const DepsMap = {
   ESLINT: "eslint",
@@ -34,7 +34,7 @@ const depHandlers = {
   [DepsMap.TAZE]: handleTaze,
 }
 
-export const addAction = async () => {
+export async function addAction() {
   intro(
     `🍉 ${chalk.bold(
       `${chalk.cyanBright("Follow the wind")} and ${chalk.blueBright(
@@ -357,16 +357,18 @@ function handleSimpleGitHooks(
   const hasLintStaged = deps.includes(DepsMap.LINT_STAGED)
   let command = ""
 
-  if (hasLintStaged) command = "pnpm exec lint-staged"
-  else {
+  if (hasLintStaged) {
+    command = "pnpm exec lint-staged"
+  } else {
     if (hasDep(pkgJson, DepsMap.ESLINT) || hasDepToHandle(deps, DepsMap.ESLINT))
       command = "pnpm run lint"
     if (
       hasDep(pkgJson, DepsMap.PRETTIER) ||
       hasDepToHandle(deps, DepsMap.PRETTIER)
-    )
+    ) {
       command =
         command === "" ? "pnpm run prettier" : `${command} && pnpm run prettier`
+    }
   }
 
   result.pkgJson["simple-git-hooks"] = {

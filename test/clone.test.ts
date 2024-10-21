@@ -1,7 +1,7 @@
 import { ensureDotGit, validateRepo } from "@/utils/clone"
 
 describe("command clone", () => {
-  test("validateRepo", () => {
+  it("validateRepo", () => {
     expect(validateRepo("user/repo")).toBe(true)
 
     expect(validateRepo("a-b/c-d")).toBe(true)
@@ -20,7 +20,7 @@ describe("command clone", () => {
     expect(validateRepo("a-b/..c..d..")).toBe(true)
   })
 
-  test("ensureDotGit", () => {
+  it("ensureDotGit", () => {
     expect(ensureDotGit("https://github.com/lotwt/venti")).toBe(
       "https://github.com/lotwt/venti.git",
     )
