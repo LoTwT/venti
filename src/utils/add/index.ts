@@ -113,7 +113,7 @@ export async function addAction() {
       },
       {
         p: "tsconfig.json",
-        d: Object.assign(tsconfig, ...res.map((r) => r.tsconfig || {})),
+        d: defu(tsconfig, ...res.map((r) => r.tsconfig || {})),
       },
     ].map(async (obj) => {
       const jsonPath = resolve(cwd(), obj.p)
