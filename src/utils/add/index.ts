@@ -247,7 +247,7 @@ function handleESlint(pkgJson: PackageJson): DepHandlerResult {
   result.pkgJson.type = "module"
 
   const vscodeSettings = {
-    "eslint.experimental.useFlatConfig": true,
+    "eslint.useFlatConfig": true,
   }
 
   const callback = async () => {
