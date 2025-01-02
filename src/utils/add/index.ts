@@ -432,7 +432,7 @@ function handleVitest(pkgJson: PackageJson): DepHandlerResult {
 
   const tsconfig: TSConfig = {
     compilerOptions: {
-      types: ["vitest/globales"],
+      types: ["vitest/globals"],
     },
   }
 
