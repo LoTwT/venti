@@ -1,7 +1,7 @@
 {
   "name": "@ayingott/venti",
   "type": "module",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "packageManager": "pnpm@10.4.0",
   "description": "venti",
   "author": "LoTwT <709937065@qq.com>",
