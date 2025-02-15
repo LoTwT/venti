@@ -74,6 +74,9 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "simple-git-hooks"
+    ],
+    "ignoredBuiltDependencies": [
+      "esbuild"
     ]
   },
   "simple-git-hooks": {
