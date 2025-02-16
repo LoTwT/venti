@@ -1,18 +1,40 @@
 import type { PackageJson, TSConfig } from "pkg-types"
-import { resolve } from "node:path"
+import {
+  access,
+  constants,
+  copyFile,
+  mkdir,
+  open,
+  readFile,
+  rm,
+  writeFile,
+} from "node:fs/promises"
+import { dirname, resolve } from "node:path"
 import { cwd, exit } from "node:process"
+import { getDirname } from "@ayingott/sucrose"
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import defu from "defu"
 import { execaSync } from "execa"
-import {
-  copyFile,
-  ensureFile,
-  exists,
-  readFile,
-  remove,
-  writeFile,
-} from "fs-extra"
+
+const _dirname = getDirname(import.meta.url)
+
+async function ensureFile(filePath: string) {
+  // 先确保目录存在
+  await mkdir(dirname(filePath), { recursive: true })
+  // 使用 'a' 模式打开文件（如果不存在则创建）
+  const fileHandle = await open(filePath, "a")
+  await fileHandle.close()
+}
+
+async function exists(filePath: string) {
+  try {
+    await access(filePath, constants.F_OK)
+    return true
+  } catch {
+    return false
+  }
+}
 
 const DepsMap = {
   ESLINT: "eslint",
@@ -119,7 +141,7 @@ export async function addAction() {
       const jsonPath = resolve(cwd(), obj.p)
 
       if (Object.keys(obj.d).length === 0) {
-        await remove(jsonPath)
+        await rm(jsonPath)
       } else {
         await writeFile(jsonPath, JSON.stringify(obj.d, null, 2), {
           encoding: "utf-8",
@@ -252,7 +274,7 @@ function handleESlint(pkgJson: PackageJson): DepHandlerResult {
 
   const callback = async () => {
     await copyFile(
-      resolve(__dirname, `templates/eslint/eslint.config.mjs`),
+      resolve(_dirname, `templates/eslint/eslint.config.mjs`),
       resolve(cwd(), "eslint.config.js"),
     )
   }
@@ -425,7 +447,7 @@ function handleVitest(pkgJson: PackageJson): DepHandlerResult {
 
   const callback = async () => {
     await copyFile(
-      resolve(__dirname, "templates/vitest/template.ts"),
+      resolve(_dirname, "templates/vitest/template.ts"),
       resolve(cwd(), "vitest.config.ts"),
     )
   }
