@@ -1,2 +1,9 @@
+shellEmulator: true
+trustPolicy: no-downgrade
 packages:
   - playground
+
+ignoredBuiltDependencies:
+  - esbuild
+onlyBuiltDependencies:
+  - simple-git-hooks
