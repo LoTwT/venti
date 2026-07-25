@@ -1,4 +1,5 @@
 import { exit } from "node:process"
+
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import { execa, parseCommandString } from "execa"

@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["import", "node", "typescript", "unicorn", "vitest"],
+  "categories": {
+    "correctness": "error",
+    "perf": "warn",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "import/no-duplicates": "error",
+    "unicorn/prefer-node-protocol": "error"
+  }
+}

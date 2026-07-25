@@ -1,6 +1,7 @@
-import type { MayBeUndefined } from "@ayingott/sucrose"
 import fs from "node:fs"
 import process from "node:process"
+
+import type { MayBeUndefined } from "@ayingott/sucrose"
 import { exitProcess } from "@ayingott/sucrose"
 import chalk from "chalk"
 import { execa } from "execa"
@@ -18,7 +19,7 @@ interface CloneActionOptions {
   clean: MayBeUndefined<boolean>
 }
 
-const REPO_RE = /^[\dA-Z][\dA-Z\-]*\/[\w.\-]+$/i
+const REPO_RE = /^[\dA-Z][\dA-Z-]*\/[\w.-]+$/i
 export const validateRepo = (repo: string) => REPO_RE.test(repo)
 
 export function ensureDotGit(repo: string) {
@@ -71,7 +72,7 @@ export async function cloneAction(
     if (clean) {
       const dotGitPath = `${repoDirPath}/.git`
       console.log("===>", dotGitPath)
-      fs.existsSync(dotGitPath) && rimraf.sync(dotGitPath)
+      if (fs.existsSync(dotGitPath)) rimraf.sync(dotGitPath)
     }
 
     console.log(
