@@ -1,24 +1,20 @@
-import createCac from "cac"
+import { runMain } from "citty"
 
-import { addAction, cloneAction, envAction, shellAction } from "@/utils"
-import pkgJson from "~/package.json"
+import { mainCommand, validateCloneArgs } from "./commands"
 
-const cac = createCac("venti")
+const [command, ...commandArgs] = process.argv.slice(2)
 
-cac.command("env", "environment variables").action(envAction)
+if (
+  command === "clone" &&
+  !commandArgs.includes("--help") &&
+  !commandArgs.includes("-h")
+) {
+  try {
+    validateCloneArgs(commandArgs)
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error)
+    process.exitCode = 1
+  }
+}
 
-cac
-  .command("clone <repo> [dirname]", "wrapper of git clone")
-  .option("-p, --platform [platform]", "github or gitlab")
-  .option("-c, --clean", "clean clone without .git")
-  .action(cloneAction)
-
-cac.command("add", "add dependencies").action(addAction)
-
-cac.command("shell", "run shell update").action(shellAction)
-
-cac.help()
-
-cac.version(pkgJson.version)
-
-cac.parse()
+if (process.exitCode !== 1) await runMain(mainCommand)

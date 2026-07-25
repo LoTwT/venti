@@ -37,13 +37,15 @@ ${npmPackages.reduce(
   },
 }
 
-async function getPackageManager() {
+export async function getPackageManager() {
   const packageJsonPath = path.resolve(process.cwd(), "package.json")
 
   let packageManager: Nullable<string> = null
 
   if (fs.existsSync(packageJsonPath))
-    packageManager = (await import(packageJsonPath))?.packageManager ?? null
+    packageManager =
+      JSON.parse(await fs.promises.readFile(packageJsonPath, "utf8"))
+        ?.packageManager ?? null
 
   return packageManager
 }

@@ -8,7 +8,6 @@ import { defineConfig } from "tsdown"
 export default defineConfig({
   entry: ["./src/bin/index.ts"],
   format: ["esm"],
-  target: "node22.22.1",
   clean: true,
   dts: false,
   outDir: "dist/bin",
