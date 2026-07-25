@@ -39,12 +39,12 @@ importers:
       bumpp:
         specifier: ^12.0.0
         version: 12.0.0
-      cac:
-        specifier: ^7.0.0
-        version: 7.0.0
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
+      citty:
+        specifier: ^0.2.2
+        version: 0.2.2
       envinfo:
         specifier: ^7.21.0
         version: 7.21.0
@@ -1151,6 +1151,9 @@ packages:
   chalk@5.6.2:
     resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
+  citty@0.2.2:
+    resolution: {integrity: sha512-+6vJA3L98yv+IdfKGZHBNiGW5KHn22e/JwID0Strsz8h4S/csAu/OuICwxrg44k5MRiZHWIo8XXuJgQTriRP4w==}
 
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
@@ -2392,6 +2395,8 @@ snapshots:
   chai@6.2.2: {}
 
   chalk@5.6.2: {}
+
+  citty@0.2.2: {}
 
   confbox@0.1.8: {}
 

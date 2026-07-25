@@ -11,6 +11,7 @@ export default defineConfig({
   ],
   test: {
     includeSource: ["src/*"],
+    include: ["test/**/*.test.ts"],
   },
   resolve: {
     alias: {
