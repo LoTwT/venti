@@ -1,7 +1,8 @@
 import { exit } from "node:process"
+
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
-import { execaCommand } from "execa"
+import { execa, parseCommandString } from "execa"
 
 const ShellCommands = {
   // pnpm: "pnpm i pnpm -g",
@@ -47,7 +48,8 @@ export async function shellAction() {
     for (const command of commands) {
       intro()
       intro(`🚀 ${chalk.bold(chalk.greenBright(command))}`)
-      await execaCommand(command, { encoding: "utf8", stdio: "inherit" })
+      const [file, ...args] = parseCommandString(command)
+      await execa(file, args, { encoding: "utf8", stdio: "inherit" })
       outro(`🎉 ${chalk.bold(chalk.greenBright("Done!"))}`)
     }
 

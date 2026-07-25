@@ -1,2 +1,13 @@
+allowBuilds:
+  esbuild: false
+  simple-git-hooks: true
+
 packages:
   - playground
+
+minimumReleaseAgeExclude:
+  - rolldown-plugin-dts@0.27.14
+  - tsdown@0.22.14
+
+shellEmulator: true
+trustPolicy: no-downgrade

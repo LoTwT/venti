@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "useTabs": false,
+  "tabWidth": 2,
+  "printWidth": 80,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "semi": false,
+  "endOfLine": "lf",
+  "proseWrap": "preserve",
+  "bracketSpacing": true,
+  "quoteProps": "consistent",
+  "sortImports": true,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    ".claude/**",
+    "auto-imports.d.ts",
+    "components.d.ts",
+    "typed-router.d.ts"
+  ]
+}

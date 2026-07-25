@@ -1,31 +1,26 @@
-import type { PackageJson, TSConfig } from "pkg-types"
 import {
   access,
   constants,
   copyFile,
   mkdir,
-  open,
   readFile,
-  rm,
   writeFile,
 } from "node:fs/promises"
+import { createRequire } from "node:module"
 import { dirname, resolve } from "node:path"
-import { cwd, exit } from "node:process"
+import { cwd, execPath, exit } from "node:process"
+
+import { detect, getCommand, serializeCommand } from "@antfu/ni"
 import { getDirname } from "@ayingott/sucrose"
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import defu from "defu"
 import { execaSync } from "execa"
+import type { PackageJson, TSConfig } from "pkg-types"
 
 const _dirname = getDirname(import.meta.url)
-
-async function ensureFile(filePath: string) {
-  // 先确保目录存在
-  await mkdir(dirname(filePath), { recursive: true })
-  // 使用 'a' 模式打开文件（如果不存在则创建）
-  const fileHandle = await open(filePath, "a")
-  await fileHandle.close()
-}
+const require = createRequire(import.meta.url)
+const niCliPath = require.resolve("@antfu/ni/ni")
 
 async function exists(filePath: string) {
   try {
@@ -36,9 +31,28 @@ async function exists(filePath: string) {
   }
 }
 
+export async function copyTemplate(templatePath: string, targetPath: string) {
+  if (await exists(targetPath)) return false
+
+  await copyFile(templatePath, targetPath)
+  return true
+}
+
+async function getPackageManager() {
+  return (await detect({ cwd: cwd(), programmatic: true })) ?? "npm"
+}
+
+export function getPackageManagerCommand(
+  packageManager: Awaited<ReturnType<typeof getPackageManager>>,
+  command: "execute-local" | "run",
+  script: string,
+) {
+  return serializeCommand(getCommand(packageManager, command, [script])) ?? ""
+}
+
 const DepsMap = {
-  ESLINT: "eslint",
-  PRETTIER: "prettier",
+  OXLINT: "oxlint",
+  OXFMT: "oxfmt",
   LINT_STAGED: "lint-staged",
   SIMPLE_GIT_HOOKS: "simple-git-hooks",
   BUMPP: "bumpp",
@@ -47,10 +61,8 @@ const DepsMap = {
 }
 
 const depHandlers = {
-  [DepsMap.ESLINT]: handleESlint,
-  [DepsMap.PRETTIER]: handlePrettier,
-  [DepsMap.LINT_STAGED]: handleLintStaged,
-  [DepsMap.SIMPLE_GIT_HOOKS]: handleSimpleGitHooks,
+  [DepsMap.OXLINT]: handleOxlint,
+  [DepsMap.OXFMT]: handleOxfmt,
   [DepsMap.BUMPP]: handleBumpp,
   [DepsMap.VITEST]: handleVitest,
   [DepsMap.TAZE]: handleTaze,
@@ -73,14 +85,12 @@ export async function addAction() {
           message: "Select deps you want to install",
           options: [
             {
-              value: DepsMap.ESLINT,
-              label: "eslint",
-              hint: "@ayingott/eslint-config",
+              value: DepsMap.OXLINT,
+              label: "oxlint",
             },
             {
-              value: DepsMap.PRETTIER,
-              label: "prettier",
-              hint: "@ayingott/prettier-config",
+              value: DepsMap.OXFMT,
+              label: "oxfmt",
             },
             { value: DepsMap.LINT_STAGED, label: "lint-staged" },
             { value: DepsMap.SIMPLE_GIT_HOOKS, label: "simple-git-hooks" },
@@ -99,12 +109,16 @@ export async function addAction() {
     },
   )
 
-  const pkgJson = await ensureAndImportJson<PackageJson>("package.json")
+  const pkgJson = await getJson<PackageJson>("package.json")
+  const packageManager = await getPackageManager()
 
   const res = await Promise.all(
     deps
-      .filter((d) => d !== (DepsMap.LINT_STAGED || DepsMap.SIMPLE_GIT_HOOKS))
-      .map((dep) => depHandlers?.[dep]?.(pkgJson, deps)),
+      .filter(
+        (dep) =>
+          dep !== DepsMap.LINT_STAGED && dep !== DepsMap.SIMPLE_GIT_HOOKS,
+      )
+      .map((dep) => depHandlers?.[dep]?.(pkgJson)),
   )
 
   if (deps.includes(DepsMap.LINT_STAGED)) {
@@ -112,37 +126,54 @@ export async function addAction() {
   }
 
   if (deps.includes(DepsMap.SIMPLE_GIT_HOOKS)) {
-    res.push(handleSimpleGitHooks(pkgJson, deps))
+    res.push(await handleSimpleGitHooks(pkgJson, deps, packageManager))
   }
 
-  if (res.every((r) => r.existed)) {
-    outro(`🎉 ${chalk.bold(chalk.greenBright("All deps already exists!"))} 🎉`)
-    exit(0)
+  const depsToInstall = res
+    .filter((r) => !r.existed)
+    .reduce<string[]>((acc, curr) => {
+      acc.push(...curr.depsToInstall)
+      return acc
+    }, [])
+
+  console.log("\n")
+
+  if (depsToInstall.length > 0) {
+    const isMonorepo = await exists(resolve(cwd(), "pnpm-workspace.yaml"))
+    const args = [
+      "--save-dev",
+      ...(isMonorepo ? ["--workspace-root"] : []),
+      ...depsToInstall,
+    ]
+
+    execaSync(execPath, [niCliPath, ...args], {
+      stdio: "inherit",
+    })
   }
 
-  const vscodeSettings = await ensureAndImportJson(".vscode/settings.json")
-  const tsconfig = await ensureAndImportJson<TSConfig>("tsconfig.json")
+  const installedPkgJson = await getJson<PackageJson>("package.json")
+  const vscodeSettings = await getJson(".vscode/settings.json")
+  const tsconfig = await getJson<TSConfig>("tsconfig.json")
 
   await Promise.all(
     [
       {
         p: "package.json",
-        d: defu({}, ...res.map((r) => r.pkgJson), pkgJson),
+        d: defu({}, ...res.map((r) => r.pkgJson), installedPkgJson),
       },
       {
         p: ".vscode/settings.json",
-        d: Object.assign(vscodeSettings, ...res.map((r) => r.vscodeSettings)),
+        d: defu({}, ...res.map((r) => r.vscodeSettings || {}), vscodeSettings),
       },
       {
         p: "tsconfig.json",
-        d: defu(tsconfig, ...res.map((r) => r.tsconfig || {})),
+        d: defu({}, ...res.map((r) => r.tsconfig || {}), tsconfig),
       },
     ].map(async (obj) => {
       const jsonPath = resolve(cwd(), obj.p)
 
-      if (Object.keys(obj.d).length === 0) {
-        await rm(jsonPath)
-      } else {
+      if (Object.keys(obj.d).length > 0) {
+        await mkdir(dirname(jsonPath), { recursive: true })
         await writeFile(jsonPath, JSON.stringify(obj.d, null, 2), {
           encoding: "utf-8",
         })
@@ -152,29 +183,16 @@ export async function addAction() {
 
   await Promise.all(res.filter((r) => r.callback).map((r) => r.callback?.()))
 
-  const depsToInstall = res
-    .filter((r) => !r.existed)
-    .reduce<string[]>((res, curr) => {
-      res.push(...curr.depsToInstall)
-      return res
-    }, [])
-
-  console.log("\n")
-
-  const isMonorepo = await exists(resolve(cwd(), "pnpm-workspace.yaml"))
-
-  execaSync(
-    "ni",
-    ["--save-dev", isMonorepo ? "--workspace-root" : "", ...depsToInstall],
-    {
+  if (
+    deps.includes(DepsMap.SIMPLE_GIT_HOOKS) &&
+    res.some((r) => r.pkgJson["simple-git-hooks"])
+  ) {
+    execaSync("simple-git-hooks", {
+      cwd: cwd(),
+      preferLocal: true,
       stdio: "inherit",
-    },
-  )
-
-  // to register simple-git-hooks
-  execaSync("ni", {
-    stdio: "inherit",
-  })
+    })
+  }
 
   console.log("\n")
 
@@ -194,23 +212,6 @@ async function getJson<T extends Record<string, any>>(
 
   try {
     json = JSON.parse(await readFile(p, { encoding: "utf-8" }))
-  } catch {
-    json = {}
-  }
-
-  return json as T
-}
-
-async function ensureAndImportJson<T extends Record<string, any>>(
-  jsonPath: string,
-  cwdPath = cwd(),
-) {
-  await ensureFile(resolve(cwdPath, jsonPath))
-
-  let json
-
-  try {
-    json = await getJson(jsonPath, cwdPath)
   } catch {
     json = {}
   }
@@ -250,72 +251,80 @@ function hasDepToHandle(deps: string[], dep: string) {
   return deps.includes(dep)
 }
 
-function handleESlint(pkgJson: PackageJson): DepHandlerResult {
+function handleOxlint(pkgJson: PackageJson): DepHandlerResult {
   const result = createDefaultDepHandlerResult()
 
-  if (hasDep(pkgJson, DepsMap.ESLINT)) {
+  if (hasDep(pkgJson, DepsMap.OXLINT)) {
     return {
       ...result,
       existed: true,
-      msg: "🍟 ESLint already exists",
+      msg: "🍟 Oxlint already exists",
     }
   }
 
-  result.depsToInstall.push(DepsMap.ESLINT, "@ayingott/eslint-config")
+  result.depsToInstall.push(DepsMap.OXLINT)
 
   result.pkgJson.scripts = {
-    lint: "eslint .",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix --deny-warnings",
   }
-  result.pkgJson.type = "module"
 
   const vscodeSettings = {
-    "eslint.useFlatConfig": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.oxc": "explicit",
+    },
   }
 
   const callback = async () => {
-    await copyFile(
-      resolve(_dirname, `templates/eslint/eslint.config.mjs`),
-      resolve(cwd(), "eslint.config.js"),
+    await copyTemplate(
+      resolve(_dirname, "templates/oxlint/.oxlintrc.json"),
+      resolve(cwd(), ".oxlintrc.json"),
     )
   }
 
   return {
     ...result,
-    msg: "🎉 eslint installed",
+    msg: "🎉 oxlint installed",
     vscodeSettings,
     callback,
   }
 }
 
-function handlePrettier(pkgJson: PackageJson): DepHandlerResult {
+function handleOxfmt(pkgJson: PackageJson): DepHandlerResult {
   const result = createDefaultDepHandlerResult()
 
-  if (hasDep(pkgJson, DepsMap.PRETTIER)) {
+  if (hasDep(pkgJson, DepsMap.OXFMT)) {
     return {
       ...result,
       existed: true,
-      msg: "🍟 prettier already exists",
+      msg: "🍟 oxfmt already exists",
     }
   }
 
-  result.depsToInstall.push(DepsMap.PRETTIER, "@ayingott/prettier-config")
+  result.depsToInstall.push(DepsMap.OXFMT)
 
   result.pkgJson.scripts = {
-    prettier: "prettier --write .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
   }
-  result.pkgJson.prettier = "@ayingott/prettier-config"
 
   const vscodeSettings = {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
-    },
+  }
+
+  const callback = async () => {
+    await copyTemplate(
+      resolve(_dirname, "templates/oxfmt/.oxfmtrc.json"),
+      resolve(cwd(), ".oxfmtrc.json"),
+    )
   }
 
   return {
     ...result,
-    msg: "🎉 prettier installed",
+    msg: "🎉 oxfmt installed",
     vscodeSettings,
+    callback,
   }
 }
 
@@ -324,82 +333,96 @@ function handleLintStaged(
   deps: string[],
 ): DepHandlerResult {
   const result = createDefaultDepHandlerResult()
+  const alreadyInstalled = Boolean(hasDep(pkgJson, DepsMap.LINT_STAGED))
+  const lintStaged: Record<string, string | string[]> = {}
+  const hasOxlint =
+    hasDep(pkgJson, DepsMap.OXLINT) || deps.includes(DepsMap.OXLINT)
+  const hasOxfmt =
+    hasDep(pkgJson, DepsMap.OXFMT) || deps.includes(DepsMap.OXFMT)
 
-  if (hasDep(pkgJson, DepsMap.LINT_STAGED)) {
+  if (hasOxlint || hasOxfmt) {
+    lintStaged["*.{cjs,cts,js,jsx,mjs,mts,ts,tsx,vue}"] = [
+      ...(hasOxlint ? ["oxlint --fix --deny-warnings"] : []),
+      ...(hasOxfmt ? ["oxfmt --write --no-error-on-unmatched-pattern"] : []),
+    ]
+  }
+
+  if (hasOxfmt) {
+    lintStaged[
+      "*.{css,graphql,html,json,json5,jsonc,less,md,mdx,scss,toml,yaml,yml}"
+    ] = "oxfmt --write --no-error-on-unmatched-pattern"
+  }
+
+  if (Object.keys(lintStaged).length === 0) {
     return {
       ...result,
       existed: true,
-      msg: "🍟 lint-staged already exists",
+      msg: "🍟 lint-staged needs oxlint or oxfmt",
     }
   }
 
-  result.depsToInstall.push(DepsMap.LINT_STAGED)
-
-  const commands: string[] = []
-
-  if (hasDep(pkgJson, DepsMap.ESLINT) || deps.includes(DepsMap.ESLINT)) {
-    commands.push("eslint --fix")
-  }
-
-  if (hasDep(pkgJson, DepsMap.PRETTIER) || deps.includes(DepsMap.PRETTIER)) {
-    commands.push("prettier --write --ignore-unknown")
-  }
-
-  result.pkgJson["lint-staged"] = {
-    "*": [...commands],
-  }
+  result.existed = alreadyInstalled
+  if (!alreadyInstalled) result.depsToInstall.push(DepsMap.LINT_STAGED)
+  result.pkgJson["lint-staged"] = lintStaged
 
   return {
     ...result,
-    msg: "🎉 lint-staged installed",
+    msg: alreadyInstalled
+      ? "🎉 lint-staged configured"
+      : "🎉 lint-staged installed",
   }
 }
 
-function handleSimpleGitHooks(
+async function handleSimpleGitHooks(
   pkgJson: PackageJson,
   deps: string[],
-): DepHandlerResult {
+  packageManager: Awaited<ReturnType<typeof getPackageManager>>,
+): Promise<DepHandlerResult> {
   const result = createDefaultDepHandlerResult()
+  const alreadyInstalled = Boolean(hasDep(pkgJson, DepsMap.SIMPLE_GIT_HOOKS))
+  const hasLintStaged =
+    hasDep(pkgJson, DepsMap.LINT_STAGED) ||
+    (deps.includes(DepsMap.LINT_STAGED) &&
+      (hasDep(pkgJson, DepsMap.OXLINT) ||
+        hasDep(pkgJson, DepsMap.OXFMT) ||
+        deps.includes(DepsMap.OXLINT) ||
+        deps.includes(DepsMap.OXFMT)))
+  const commands: string[] = []
 
-  if (hasDep(pkgJson, DepsMap.SIMPLE_GIT_HOOKS)) {
+  if (hasLintStaged) {
+    commands.push(
+      getPackageManagerCommand(packageManager, "execute-local", "lint-staged"),
+    )
+  } else {
+    if (hasDep(pkgJson, DepsMap.OXLINT) || hasDepToHandle(deps, DepsMap.OXLINT))
+      commands.push(getPackageManagerCommand(packageManager, "run", "lint"))
+    if (hasDep(pkgJson, DepsMap.OXFMT) || hasDepToHandle(deps, DepsMap.OXFMT))
+      commands.push(getPackageManagerCommand(packageManager, "run", "format"))
+  }
+
+  if (commands.length === 0) {
     return {
       ...result,
       existed: true,
-      msg: "🍟 simple-git-hooks already exists",
+      msg: "🍟 simple-git-hooks needs lint-staged, oxlint, or oxfmt",
     }
   }
 
-  result.depsToInstall.push(DepsMap.SIMPLE_GIT_HOOKS)
-
+  result.existed = alreadyInstalled
+  if (!alreadyInstalled) result.depsToInstall.push(DepsMap.SIMPLE_GIT_HOOKS)
   result.pkgJson.scripts = {
     ...result.pkgJson.scripts,
     prepare: "simple-git-hooks",
   }
-
-  const hasLintStaged = deps.includes(DepsMap.LINT_STAGED)
-  let command = ""
-
-  if (hasLintStaged) {
-    command = "pnpm exec lint-staged"
-  } else {
-    if (hasDep(pkgJson, DepsMap.ESLINT) || hasDepToHandle(deps, DepsMap.ESLINT))
-      command = "pnpm run lint"
-    if (
-      hasDep(pkgJson, DepsMap.PRETTIER) ||
-      hasDepToHandle(deps, DepsMap.PRETTIER)
-    ) {
-      command =
-        command === "" ? "pnpm run prettier" : `${command} && pnpm run prettier`
-    }
-  }
-
   result.pkgJson["simple-git-hooks"] = {
-    "pre-commit": command,
+    "pre-commit": commands.join(" && "),
   }
 
   return {
     ...result,
-    msg: "🎉 simple-git-hooks installed",
+    msg: alreadyInstalled
+      ? "🎉 simple-git-hooks configured"
+      : "🎉 simple-git-hooks installed",
   }
 }
 
@@ -417,6 +440,7 @@ function handleBumpp(pkgJson: PackageJson): DepHandlerResult {
   result.depsToInstall.push(DepsMap.BUMPP)
 
   result.pkgJson.scripts = {
+    prepack: "pnpm build",
     prepublishOnly: "pnpm build",
     release: "bumpp && pnpm publish",
   }
@@ -446,7 +470,7 @@ function handleVitest(pkgJson: PackageJson): DepHandlerResult {
   }
 
   const callback = async () => {
-    await copyFile(
+    await copyTemplate(
       resolve(_dirname, "templates/vitest/template.ts"),
       resolve(cwd(), "vitest.config.ts"),
     )

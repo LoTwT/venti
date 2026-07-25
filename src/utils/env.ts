@@ -1,7 +1,8 @@
-import type { Nullable } from "@ayingott/sucrose"
 import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
+
+import type { Nullable } from "@ayingott/sucrose"
 import envinfo from "envinfo"
 
 const infoStrategies: Record<string, (...args: any) => string> = {

@@ -17,7 +17,7 @@ jobs:
       - name: Set node
         uses: actions/setup-node@v3
         with:
-          node-version: 20.x
+          node-version: 22.22.1
 
       - name: Setup
         run: npm i -g @antfu/ni
@@ -28,6 +28,9 @@ jobs:
       - name: Lint
         run: nr lint
 
+      - name: Check formatting
+        run: nr format:check
+
   typecheck:
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +38,7 @@ jobs:
       - name: Set node
         uses: actions/setup-node@v3
         with:
-          node-version: 20.x
+          node-version: 22.22.1
 
       - name: Setup
         run: npm i -g @antfu/ni
@@ -51,7 +54,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20.x]
+        node: [22.22.1]
         os: [ubuntu-latest, windows-latest, macos-latest]
       fail-fast: false
 

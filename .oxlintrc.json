@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["import", "node", "typescript", "unicorn", "vitest"],
+  "categories": {
+    "correctness": "error",
+    "perf": "warn",
+    "suspicious": "warn"
+  },
+  "ignorePatterns": [".claude/**", "auto-imports.d.ts", "src/index.ts"],
+  "rules": {
+    "no-await-in-loop": "off",
+    "no-console": "off",
+    "no-underscore-dangle": "off",
+    "import/no-duplicates": "error",
+    "unicorn/prefer-node-protocol": "error"
+  }
+}
