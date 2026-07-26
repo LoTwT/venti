@@ -8,28 +8,13 @@ importers:
 
   .:
     dependencies:
-      '@antfu/ni':
-        specifier: ^30.3.0
-        version: 30.3.0
-      '@clack/core':
-        specifier: ^1.4.3
-        version: 1.4.3
       '@clack/prompts':
         specifier: ^1.7.0
         version: 1.7.0
-      defu:
-        specifier: ^6.1.7
-        version: 6.1.7
-      pkg-types:
-        specifier: ^2.3.1
-        version: 2.3.1
     devDependencies:
       '@ayingott/sucrose':
         specifier: ^0.1.0
         version: 0.1.0
-      '@types/envinfo':
-        specifier: ^7.8.4
-        version: 7.8.4
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1
@@ -45,9 +30,6 @@ importers:
       citty:
         specifier: ^0.2.2
         version: 0.2.2
-      envinfo:
-        specifier: ^7.21.0
-        version: 7.21.0
       execa:
         specifier: ^10.0.0
         version: 10.0.0
@@ -945,9 +927,6 @@ packages:
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
-  '@types/envinfo@7.8.4':
-    resolution: {integrity: sha512-K5WaRgSlqjc408IyPbxOFnz7rVG9E8ELhj7XR3Ncui15EgeyIXTcCfmwrRnU4uEOCJQhzZRAQurYznEEc1dD2g==}
-
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
 
@@ -1194,11 +1173,6 @@ packages:
   empathic@2.0.1:
     resolution: {integrity: sha512-YGRs8knHhKHVShLkFET/rWAU8kmHbOV5LwN938RHI0pljAJ1Gf6SzXsSmRaEzcXTtOOmVqJ5+WtQPL5uigY50Q==}
     engines: {node: '>=14'}
-
-  envinfo@7.21.0:
-    resolution: {integrity: sha512-Lw7I8Zp5YKHFCXL7+Dz95g4CcbMEpgvqZNNq3AmlT5XAV6CgAAk6gyAMqn2zjw08K9BHfcNuKrMiCPLByGafow==}
-    engines: {node: '>=4'}
-    hasBin: true
 
   es-module-lexer@2.3.1:
     resolution: {integrity: sha512-shc1dbU90Yl/xq1QrC7QRtfcwURZuVRfPhZbDoldJ1cn1gzDvBaBWlv0eFolj5+0znnPJz5TXLxsN77X/12KTA==}
@@ -2242,8 +2216,6 @@ snapshots:
 
   '@types/deep-eql@4.0.2': {}
 
-  '@types/envinfo@7.8.4': {}
-
   '@types/estree@1.0.9': {}
 
   '@types/node@26.1.1':
@@ -2419,8 +2391,6 @@ snapshots:
   dts-resolver@3.0.0: {}
 
   empathic@2.0.1: {}
-
-  envinfo@7.21.0: {}
 
   es-module-lexer@2.3.1: {}
 

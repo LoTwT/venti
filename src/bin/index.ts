@@ -1,16 +1,30 @@
 import { runMain } from "citty"
 
-import { mainCommand, validateCloneArgs } from "./commands"
+import {
+  cloneCommand,
+  doctorCommand,
+  mainCommand,
+  upgradeCommand,
+  validateCommandArgs,
+} from "./commands"
 
 const [command, ...commandArgs] = process.argv.slice(2)
 
+const strictCommands = {
+  clone: cloneCommand,
+  doctor: doctorCommand,
+  upgrade: upgradeCommand,
+} as const
+
+const strictCommand = strictCommands[command as keyof typeof strictCommands]
+
 if (
-  command === "clone" &&
+  strictCommand &&
   !commandArgs.includes("--help") &&
   !commandArgs.includes("-h")
 ) {
   try {
-    validateCloneArgs(commandArgs)
+    validateCommandArgs(strictCommand, commandArgs)
   } catch (error) {
     console.error(error instanceof Error ? error.message : error)
     process.exitCode = 1
