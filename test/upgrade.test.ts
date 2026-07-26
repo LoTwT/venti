@@ -29,6 +29,14 @@ describe("parseNames", () => {
   })
 })
 
+describe("upgrade entries", () => {
+  it("disables the minimum release age for pnpm updates", () => {
+    expect(upgradeEntries.find((entry) => entry.name === "pnpm")?.command).toBe(
+      "pnpm update -gL --config.minimum-release-age=0",
+    )
+  })
+})
+
 describe("resolveTargets", () => {
   it("resolves known names in registry order", () => {
     const { targets, invalid } = resolveTargets(upgradeEntries, ["bun", "brew"])
