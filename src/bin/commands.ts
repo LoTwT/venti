@@ -3,16 +3,22 @@ import { parseArgs } from "node:util"
 import type { ArgType } from "citty"
 import { defineCommand, showUsage } from "citty"
 
-import { cloneAction, envAction, upgradeAction } from "@/utils"
+import { cloneAction, doctorAction, upgradeAction } from "@/utils"
 import pkgJson from "~/package.json"
 
-export const envCommand = defineCommand({
+export const doctorCommand = defineCommand({
   meta: {
-    name: "env",
-    description: "environment variables",
+    name: "doctor",
+    description: "environment checks",
   },
-  run() {
-    return envAction()
+  args: {
+    json: {
+      type: "boolean",
+      description: "machine-readable JSON output",
+    },
+  },
+  run({ args }) {
+    return doctorAction({ json: args.json })
   },
 })
 
@@ -154,7 +160,7 @@ export const mainCommand = defineCommand({
     description: pkgJson.description,
   },
   subCommands: {
-    env: envCommand,
+    doctor: doctorCommand,
     clone: cloneCommand,
     upgrade: upgradeCommand,
   },

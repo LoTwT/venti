@@ -2,6 +2,7 @@ import { runMain } from "citty"
 
 import {
   cloneCommand,
+  doctorCommand,
   mainCommand,
   upgradeCommand,
   validateCommandArgs,
@@ -11,6 +12,7 @@ const [command, ...commandArgs] = process.argv.slice(2)
 
 const strictCommands = {
   clone: cloneCommand,
+  doctor: doctorCommand,
   upgrade: upgradeCommand,
 } as const
 

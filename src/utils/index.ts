@@ -1,5 +1,13 @@
 export { cloneAction } from "./clone"
-export { envAction, getPackageManager } from "./env"
+export {
+  doctorAction,
+  evaluateNodeMajor,
+  getPackageManager,
+  isDoctorOk,
+  majorOf,
+  runDoctorChecks,
+} from "./doctor"
+export type { DoctorCheck, DoctorStatus } from "./doctor"
 export {
   commandExists,
   parseNames,

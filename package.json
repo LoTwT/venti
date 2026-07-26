@@ -47,13 +47,11 @@
   },
   "devDependencies": {
     "@ayingott/sucrose": "^0.1.0",
-    "@types/envinfo": "^7.8.4",
     "@types/node": "^26.1.1",
     "@types/prompts": "^2.4.9",
     "bumpp": "^12.0.0",
     "chalk": "^5.6.2",
     "citty": "^0.2.2",
-    "envinfo": "^7.21.0",
     "execa": "^10.0.0",
     "lint-staged": "^17.2.0",
     "oxfmt": "^0.60.0",
