@@ -26,7 +26,10 @@ export interface UpgradeOptions {
 }
 
 export const upgradeEntries: UpgradeEntry[] = [
-  { name: "pnpm", command: "pnpm update -gL" },
+  {
+    name: "pnpm",
+    command: "pnpm update -gL --config.minimum-release-age=0",
+  },
   { name: "brew", command: "brew upgrade" },
   { name: "claude", command: "claude install" },
   { name: "kimi", command: "kimi upgrade" },
