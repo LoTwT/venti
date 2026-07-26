@@ -104,11 +104,17 @@ export const cloneCommand = defineCommand({
       description: "clean clone without .git",
       alias: "c",
     },
+    depth: {
+      type: "string",
+      description: "create a shallow clone with the given depth",
+      alias: "d",
+    },
   },
   run({ args }) {
     return cloneAction(args.repo, args.dirname, {
       platform: args.platform,
       clean: args.clean,
+      depth: args.depth == null ? undefined : Number(args.depth),
     })
   },
 })
