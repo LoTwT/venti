@@ -8,21 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@antfu/ni':
-        specifier: ^30.3.0
-        version: 30.3.0
-      '@clack/core':
-        specifier: ^1.4.3
-        version: 1.4.3
       '@clack/prompts':
         specifier: ^1.7.0
         version: 1.7.0
-      defu:
-        specifier: ^6.1.7
-        version: 6.1.7
-      pkg-types:
-        specifier: ^2.3.1
-        version: 2.3.1
     devDependencies:
       '@ayingott/sucrose':
         specifier: ^0.1.0

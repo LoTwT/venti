@@ -3,7 +3,7 @@ import { parseArgs } from "node:util"
 import type { ArgType } from "citty"
 import { defineCommand, showUsage } from "citty"
 
-import { addAction, cloneAction, envAction, shellAction } from "@/utils"
+import { cloneAction, envAction, shellAction } from "@/utils"
 import pkgJson from "~/package.json"
 
 export const envCommand = defineCommand({
@@ -89,16 +89,6 @@ export const cloneCommand = defineCommand({
   },
 })
 
-export const addCommand = defineCommand({
-  meta: {
-    name: "add",
-    description: "add dependencies",
-  },
-  run() {
-    return addAction()
-  },
-})
-
 export const shellCommand = defineCommand({
   meta: {
     name: "shell",
@@ -118,7 +108,6 @@ export const mainCommand = defineCommand({
   subCommands: {
     env: envCommand,
     clone: cloneCommand,
-    add: addCommand,
     shell: shellCommand,
   },
   // citty runs the parent's `run` even after dispatching to a subcommand,
