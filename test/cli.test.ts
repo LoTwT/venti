@@ -1,6 +1,5 @@
 import { existsSync } from "node:fs"
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises"
-import { devNull } from "node:os"
 import { join } from "node:path"
 import { pathToFileURL } from "node:url"
 
@@ -326,10 +325,12 @@ describe("built CLI", () => {
         kind === "ssh URL"
           ? "ssh://git@venti.invalid/source.git"
           : "https://venti.invalid/source.git"
+      const gitConfig = join(fixture.cwd, "gitconfig")
+      await writeFile(gitConfig, "")
       const gitEnv = {
         PATH: process.env.PATH,
         GIT_CONFIG_NOSYSTEM: "1",
-        GIT_CONFIG_GLOBAL: devNull,
+        GIT_CONFIG_GLOBAL: gitConfig,
         GIT_ALLOW_PROTOCOL: "file",
         GIT_CONFIG_COUNT: "1",
         GIT_CONFIG_KEY_0: `url.${pathToFileURL(source).href}.insteadOf`,
