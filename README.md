@@ -36,7 +36,7 @@ venti clone https://github.com/LoTwT/venti.git
 
 ### `venti upgrade [names]`
 
-Run tool upgrades for a known set of tools: `pnpm`, `brew`, `claude`, `kimi`, `rust`, `bun`. Tools that are not installed are skipped.
+Run tool upgrades for a known set of tools: `pnpm`, `brew`, `rust`, `bun`. Tools that are not installed are skipped.
 
 - `[names]` — comma-separated tool names, e.g. `brew,rust`
 - `--all` — upgrade all known tools

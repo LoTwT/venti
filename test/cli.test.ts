@@ -81,4 +81,33 @@ describe("CLI argument validation", () => {
       "Unexpected positional argument: extra",
     )
   })
+
+  it.each(["claude", "kimi"])(
+    "rejects removed upgrade tool %s",
+    async (name) => {
+      const originalExitCode = process.exitCode
+      const error = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => undefined)
+      const log = vi.spyOn(console, "log").mockImplementation(() => undefined)
+
+      try {
+        await runCommand(mainCommand, {
+          rawArgs: ["upgrade", name, "--dry-run", "--json"],
+        })
+
+        expect(process.exitCode).toBe(1)
+        expect(error).toHaveBeenCalledWith(
+          expect.stringContaining(
+            `unknown tools: ${name}. available: pnpm, brew, rust, bun`,
+          ),
+        )
+        expect(log).not.toHaveBeenCalled()
+      } finally {
+        process.exitCode = originalExitCode
+        error.mockRestore()
+        log.mockRestore()
+      }
+    },
+  )
 })
