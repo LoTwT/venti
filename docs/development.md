@@ -2,7 +2,8 @@
 
 ## 环境要求
 
-- Node.js >= 24（`package.json` 的 `engines`，构建 target 也由此推导）
+- 开发、构建和发布：Node.js `^24.11.0 || >=26.0.0`，满足 tsdown 与 bumpp 的环境要求。
+- CLI 运行：Node.js >= 24（`package.json` 的 `engines`，构建 target 也由此推导）。
 - pnpm 版本以 `package.json` 的 `packageManager` 字段为准。
 
 ```bash
