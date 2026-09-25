@@ -22,21 +22,24 @@ test/             # vitest 测试，与 src/utils 一一对应，另有 cli.test
 
 - 三个子命令（`clone`、`upgrade`、`doctor`）用 citty 的 `defineCommand` 定义在 `src/bin/commands.ts`，挂载到 `mainCommand.subCommands`；`mainCommand.run` 仅在无子命令时打印 usage。
 - citty 解析参数较宽松，因此 `src/bin/index.ts` 在 `runMain` 之前用 `validateCommandArgs`（基于 `node:util` 的 `parseArgs`，strict 模式）对子命令参数做一次严格预校验：未知选项、多余的 positional 参数会直接报错并以退出码 1 结束。校验规则从命令的 `args` 定义派生，包括 camelCase 到 kebab-case 的自动别名，新增/修改参数时无需额外同步。
+- 子命令选项必须位于命令名后；入口拒绝其他前置选项，保留全局帮助与版本参数。
 - 每个命令的 `run` 只是把解析后的 args 适配给 `src/utils/` 里对应的 action，业务逻辑全部在 utils 层，便于脱离 CLI 直接测试。
 
 ## 非交互设计
 
 CLI 同时服务人类（TTY）与 agent/脚本（非 TTY），行为分支约定：
 
+交互模式要求 stdin 和 stdout 同时为 TTY。
+
 - `clone`：仓库名非法时，TTY 下进入交互式修补提示，非 TTY 下直接报错退出。
 - `upgrade`：未指定工具时，TTY 下弹出多选交互，非 TTY 或 `--json` 时列出可用工具后退出；显式指定工具的运行必须带 `--yes` 确认；`--dry-run` 只打印计划。未安装的工具标记为 `skipped`。
-- `doctor`：`--json` 输出机器可读结果；任何检查失败时退出码为 1。
-- `--json` 模式下子进程的 stdout 会被接管（pipe），保证 JSON 输出可解析。
+- `doctor`：只探测 README 中列出的包管理器；配置读取或校验失败作为独立检查结果保留，任何检查失败时退出码为 1。
+- `upgrade --json` 模式下丢弃子进程 stdout，避免污染 JSON 或因缓存上限中断升级；stderr 继续透传。
+- 工具可用性通过 `which-command` 查找可执行文件，不依赖系统 `which` 命令。
 
 新增命令或选项时应保持这一约定：非 TTY 环境不得阻塞在交互提示上。
 
 ## 测试分布
 
-- `test/cli.test.ts`：参数校验与 args 到 action 的映射（用 citty 的 `runCommand` 驱动）。
+- `test/cli.test.ts`：参数校验、args 到 action 的映射，以及临时构建产物的进程级回归测试。升级工具使用无害替身，克隆使用临时本地 Git 仓库。
 - `test/clone.test.ts` / `upgrade.test.ts` / `doctor.test.ts`：对应 utils 的纯函数与行为（URL 解析、工具名解析、检查评估等）。
-- `test/index.test.ts`：utils 导出面。

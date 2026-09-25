@@ -17,13 +17,14 @@ venti <command> [options]
 ```
 
 Running `venti` with no command prints the usage.
+Place command options after the command name. Only `--help`/`-h` and `--version`/`-v` are accepted before a command.
 
 ### `venti clone <repo> [dirname]`
 
 A wrapper of `git clone`.
 
 - `<repo>` — repository in `user/repo` format, or a full https/ssh URL (passed through untouched)
-- `[dirname]` — target directory name, defaults to the repository name
+- `[dirname]` — relative or absolute target directory, defaults to the repository name; put a name beginning with `-` after `--`
 - `-p, --platform <github|gitlab>` — platform prefix for `user/repo` shorthand (default: `github`)
 - `-c, --clean` — remove the `.git` directory after cloning
 - `-d, --depth <depth>` — create a shallow clone with the given depth
@@ -32,6 +33,7 @@ A wrapper of `git clone`.
 venti clone LoTwT/venti
 venti clone LoTwT/venti my-dir --clean --depth 1
 venti clone https://github.com/LoTwT/venti.git
+venti clone ssh://git@github.com/LoTwT/venti.git
 ```
 
 ### `venti upgrade [names]`
@@ -44,7 +46,7 @@ Run tool upgrades for a known set of tools: `pnpm`, `brew`, `rust`, `bun`. Tools
 - `--dry-run` — print the commands without running them
 - `--json` — machine-readable JSON output
 
-With no selection, an interactive multi-select prompt is shown in a TTY; in non-TTY contexts (or with `--json`) the available tools are listed instead.
+With no selection, an interactive multi-select prompt is shown when both stdin and stdout are TTYs; otherwise (or with `--json`) the available tools are listed instead.
 
 ```bash
 venti upgrade                # interactive multi-select
@@ -56,6 +58,8 @@ venti upgrade --all --dry-run
 ### `venti doctor`
 
 Check the local environment: Node.js version, git, the package manager declared in `package.json`, and the availability of the upgrade tools. Exits with code 1 when any check fails.
+
+Package manager declarations must use `npm`, `pnpm`, `yarn` or `bun` in `name@version` form. Invalid declarations or unreadable `package.json` files produce a failed check while preserving the other results.
 
 - `--json` — machine-readable JSON output
 

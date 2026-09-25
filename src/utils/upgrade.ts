@@ -3,6 +3,7 @@ import { exit } from "node:process"
 import { cancel, group, intro, multiselect, outro } from "@clack/prompts"
 import chalk from "chalk"
 import { execa, parseCommandString } from "execa"
+import { whichCommand } from "which-command"
 
 export interface UpgradeEntry {
   name: string
@@ -55,8 +56,7 @@ export function resolveTargets(entries: UpgradeEntry[], names: string[]) {
 
 export async function commandExists(command: string) {
   const [file] = parseCommandString(command)
-  const { exitCode } = await execa("which", [file], { reject: false })
-  return exitCode === 0
+  return file != null && (await whichCommand(file)) != null
 }
 
 export async function runTargets(
@@ -74,10 +74,10 @@ export async function runTargets(
     const [file, ...args] = parseCommandString(target.command)
     if (!quiet) intro(`🚀 ${chalk.bold(chalk.greenBright(target.command))}`)
 
-    // stdout is piped in quiet mode so `--json` output stays parseable
+    // Discard unused output without buffering it in memory.
     const { exitCode } = await execa(file, args, {
       reject: false,
-      stdout: quiet ? "pipe" : "inherit",
+      stdout: quiet ? "ignore" : "inherit",
       stderr: "inherit",
     })
 
@@ -188,7 +188,7 @@ export async function upgradeAction(options: UpgradeOptions = {}) {
     targets = resolved
   }
 
-  const isTTY = Boolean(process.stdout.isTTY)
+  const isTTY = Boolean(process.stdin.isTTY && process.stdout.isTTY)
   let interactive = false
 
   // no explicit selection: interactive prompt for humans, list for machines
