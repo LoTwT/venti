@@ -31,8 +31,6 @@ export const upgradeEntries: UpgradeEntry[] = [
     command: "pnpm update -gL --config.minimum-release-age=0",
   },
   { name: "brew", command: "brew upgrade" },
-  { name: "claude", command: "claude install" },
-  { name: "kimi", command: "kimi upgrade" },
   { name: "rust", command: "rustup update" },
   { name: "bun", command: "bun upgrade" },
 ]
