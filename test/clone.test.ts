@@ -40,8 +40,15 @@ describe("command clone", () => {
     expect(isFullRepoUrl("https://github.com/user/repo")).toBe(true)
     expect(isFullRepoUrl("https://github.com/user/repo.git")).toBe(true)
     expect(isFullRepoUrl("git@github.com:user/repo.git")).toBe(true)
+    expect(isFullRepoUrl("ssh://git@github.com/user/repo.git")).toBe(true)
+    expect(isFullRepoUrl("ssh://user@git.example.com:2222/team/repo.git")).toBe(
+      true,
+    )
 
     expect(isFullRepoUrl("user/repo")).toBe(false)
+    expect(isFullRepoUrl("ssh://git@github.com")).toBe(false)
+    expect(isFullRepoUrl("https:github.com/user/repo.git")).toBe(false)
+    expect(isFullRepoUrl("file:///tmp/repo.git")).toBe(false)
   })
 
   it("resolveRepoPath", () => {
@@ -59,6 +66,9 @@ describe("command clone", () => {
     expect(resolveRepoPath("git@github.com:user/repo.git", "github")).toBe(
       "git@github.com:user/repo.git",
     )
+    expect(
+      resolveRepoPath("ssh://git@example.com:2222/u/r.git", "gitlab"),
+    ).toBe("ssh://git@example.com:2222/u/r.git")
 
     expect(() => resolveRepoPath("not a repo", "github")).toThrow(
       "Invalid repository: not a repo",
@@ -72,11 +82,15 @@ describe("command clone", () => {
       "repo",
     )
     expect(resolveTargetDirname("git@github.com:user/repo.git")).toBe("repo")
+    expect(resolveTargetDirname("ssh://git@example.com/u/repo.git/")).toBe(
+      "repo",
+    )
   })
 
   it("buildCloneArgs", () => {
     expect(buildCloneArgs("https://x.com/u/r.git", "r")).toEqual([
       "clone",
+      "--",
       "https://x.com/u/r.git",
       "r",
     ])
@@ -84,11 +98,13 @@ describe("command clone", () => {
       "clone",
       "--depth",
       "1",
+      "--",
       "https://x.com/u/r.git",
       "r",
     ])
     expect(buildCloneArgs("https://x.com/u/r.git", "r", 0)).toEqual([
       "clone",
+      "--",
       "https://x.com/u/r.git",
       "r",
     ])

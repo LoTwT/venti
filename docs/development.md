@@ -3,7 +3,7 @@
 ## 环境要求
 
 - Node.js >= 24（`package.json` 的 `engines`，构建 target 也由此推导）
-- pnpm 11.17.0（`packageManager` 字段锁定）
+- pnpm 版本以 `package.json` 的 `packageManager` 字段为准。
 
 ```bash
 pnpm install

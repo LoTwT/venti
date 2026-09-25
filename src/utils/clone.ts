@@ -1,4 +1,5 @@
 import fs from "node:fs"
+import path from "node:path"
 import process from "node:process"
 
 import type { MayBeUndefined } from "@ayingott/sucrose"
@@ -26,8 +27,25 @@ interface CloneActionOptions {
 const REPO_RE = /^[\dA-Z][\dA-Z-]*\/[\w.-]+$/i
 export const validateRepo = (repo: string) => REPO_RE.test(repo)
 
-const FULL_URL_RE = /^(https?:\/\/|git@)[\w.-]+[/:][\w./-]+$/
-export const isFullRepoUrl = (repo: string) => FULL_URL_RE.test(repo)
+const SCP_URL_RE = /^git@[\w.-]+:[\w./-]+$/
+
+export function isFullRepoUrl(repo: string) {
+  if (SCP_URL_RE.test(repo)) return true
+  if (!/^(https?|ssh):\/\//.test(repo)) return false
+
+  try {
+    const url = new URL(repo)
+    return (
+      ["http:", "https:", "ssh:"].includes(url.protocol) &&
+      Boolean(url.hostname) &&
+      url.pathname.replace(/\/+$/, "").length > 0 &&
+      !url.search &&
+      !url.hash
+    )
+  } catch {
+    return false
+  }
+}
 
 export function ensureDotGit(repo: string) {
   return !repo.endsWith(".git") ? `${repo}.git` : repo
@@ -47,6 +65,7 @@ export function resolveTargetDirname(repo: string, dirname?: string) {
 
   // derive from the last path segment, stripping a trailing .git
   const last = repo
+    .replace(/\/+$/, "")
     .replace(/\.git$/, "")
     .split(/[/:]/)
     .pop()!
@@ -62,6 +81,7 @@ export function buildCloneArgs(
   return [
     "clone",
     ...(depth != null && depth > 0 ? ["--depth", String(depth)] : []),
+    "--",
     repoPath,
     targetDirname,
   ]
@@ -86,7 +106,7 @@ export async function cloneAction(
     repoPath = resolveRepoPath(repo, platform)
   } catch {
     // interactive repair is only offered to humans; agents get a plain error
-    if (!process.stdout.isTTY) {
+    if (!process.stdin.isTTY || !process.stdout.isTTY) {
       console.error(bold(red(`❌ Invalid repository: ${repo}`)))
       exitProcess(1)
     }
@@ -103,15 +123,15 @@ export async function cloneAction(
   }
 
   const targetDirname = resolveTargetDirname(repo, dirname)
-  const repoDirPath = `${process.cwd()}/${targetDirname}`
+  const repoDirPath = path.resolve(targetDirname)
 
   try {
-    await execa("git", buildCloneArgs(repoPath, targetDirname, depth), {
+    await execa("git", buildCloneArgs(repoPath, repoDirPath, depth), {
       stdio: "inherit",
     })
 
     if (clean) {
-      const dotGitPath = `${repoDirPath}/.git`
+      const dotGitPath = path.join(repoDirPath, ".git")
       console.log("===>", dotGitPath)
       if (fs.existsSync(dotGitPath)) rimraf.sync(dotGitPath)
     }

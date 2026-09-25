@@ -41,15 +41,27 @@ export function isDoctorOk(checks: DoctorCheck[]) {
   return !checks.some((c) => c.status === "fail")
 }
 
-export async function getPackageManager() {
+export async function getPackageManager(): Promise<Nullable<string>> {
   const packageJsonPath = path.resolve(process.cwd(), "package.json")
 
-  let packageManager: Nullable<string> = null
+  if (!fs.existsSync(packageJsonPath)) return null
 
-  if (fs.existsSync(packageJsonPath))
-    packageManager =
-      JSON.parse(await fs.promises.readFile(packageJsonPath, "utf8"))
-        ?.packageManager ?? null
+  const packageJson: unknown = JSON.parse(
+    await fs.promises.readFile(packageJsonPath, "utf8"),
+  )
+  if (
+    packageJson === null ||
+    typeof packageJson !== "object" ||
+    Array.isArray(packageJson)
+  ) {
+    throw new TypeError("package.json must contain an object")
+  }
+
+  const { packageManager } = packageJson as { packageManager?: unknown }
+  if (packageManager == null) return null
+  if (typeof packageManager !== "string") {
+    throw new TypeError("packageManager must be a string")
+  }
 
   return packageManager
 }
@@ -91,20 +103,41 @@ async function checkGit(): Promise<DoctorCheck> {
 }
 
 async function checkPackageManager(): Promise<DoctorCheck> {
-  const declared = await getPackageManager()
+  let declared: Nullable<string>
+  try {
+    declared = await getPackageManager()
+  } catch (error) {
+    return {
+      name: "package manager",
+      status: "fail",
+      detail: "cannot read package.json",
+      hint: error instanceof Error ? error.message : String(error),
+    }
+  }
 
-  if (!declared) {
+  if (declared == null) {
     return {
       name: "package manager",
       status: "warn",
       detail: "no packageManager field in package.json",
-      hint: 'declare one, e.g. "packageManager": "pnpm@11.17.0"',
+      hint: 'declare one, e.g. "packageManager": "pnpm@11.22.0"',
     }
   }
 
-  const at = declared.lastIndexOf("@")
-  const name = declared.slice(0, at)
-  const declaredMajor = majorOf(declared.slice(at + 1))
+  const declaration =
+    /^(npm|pnpm|yarn|bun)@(\d+)\.\d+\.\d+(?:-[\dA-Za-z.-]+)?(?:\+[\dA-Za-z.-]+)?$/.exec(
+      declared,
+    )
+  if (!declaration) {
+    return {
+      name: "package manager",
+      status: "fail",
+      detail: "invalid or unsupported packageManager declaration",
+      hint: "use npm, pnpm, yarn or bun with a version, e.g. pnpm@11.22.0",
+    }
+  }
+  const [, name, major] = declaration
+  const declaredMajor = Number(major)
 
   const { exitCode, stdout } = await execa(name, ["--version"], {
     reject: false,
