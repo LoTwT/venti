@@ -91,34 +91,29 @@ describe("CLI argument validation", () => {
     )
   })
 
-  it.each(["claude", "kimi"])(
-    "rejects removed upgrade tool %s",
-    async (name) => {
-      const originalExitCode = process.exitCode
-      const error = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => undefined)
-      const log = vi.spyOn(console, "log").mockImplementation(() => undefined)
+  it.each(["kimi"])("rejects removed upgrade tool %s", async (name) => {
+    const originalExitCode = process.exitCode
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined)
 
-      try {
-        await runCommand(mainCommand, {
-          rawArgs: ["upgrade", name, "--dry-run", "--json"],
-        })
+    try {
+      await runCommand(mainCommand, {
+        rawArgs: ["upgrade", name, "--dry-run", "--json"],
+      })
 
-        expect(process.exitCode).toBe(1)
-        expect(error).toHaveBeenCalledWith(
-          expect.stringContaining(
-            `unknown tools: ${name}. available: pnpm, brew, rust, bun`,
-          ),
-        )
-        expect(log).not.toHaveBeenCalled()
-      } finally {
-        process.exitCode = originalExitCode
-        error.mockRestore()
-        log.mockRestore()
-      }
-    },
-  )
+      expect(process.exitCode).toBe(1)
+      expect(error).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `unknown tools: ${name}. available: pnpm, brew, rust, bun, claude`,
+        ),
+      )
+      expect(log).not.toHaveBeenCalled()
+    } finally {
+      process.exitCode = originalExitCode
+      error.mockRestore()
+      log.mockRestore()
+    }
+  })
 })
 
 describe("built CLI", () => {
@@ -172,6 +167,49 @@ describe("built CLI", () => {
     })
     expect(await fixture.calls()).toEqual([])
   })
+
+  it("previews claude install without executing it", async () => {
+    const fixture = await createCliCase(cli.root, cli.entry, ["claude"])
+    const result = await fixture.run([
+      "upgrade",
+      "claude",
+      "--dry-run",
+      "--json",
+    ])
+
+    expect(result.exitCode).toBe(0)
+    expect(JSON.parse(result.stdout)).toMatchObject({
+      dryRun: true,
+      targets: [{ name: "claude", command: "claude install", exists: true }],
+    })
+    expect(await fixture.calls()).toEqual([])
+  })
+
+  it.each(["claude", "--all"])(
+    "runs claude install when explicitly selected with %s",
+    async (selection) => {
+      const fixture = await createCliCase(cli.root, cli.entry, ["claude"])
+      const result = await fixture.run([
+        "upgrade",
+        selection,
+        "--yes",
+        "--json",
+      ])
+
+      expect(result.exitCode).toBe(0)
+      expect(JSON.parse(result.stdout).results).toContainEqual(
+        expect.objectContaining({
+          name: "claude",
+          command: "claude install",
+          status: "succeeded",
+          exitCode: 0,
+        }),
+      )
+      expect(await fixture.calls()).toEqual([
+        { name: "claude", args: ["install"] },
+      ])
+    },
+  )
 
   it.each([
     ["upgrade", "brew", "--json"],

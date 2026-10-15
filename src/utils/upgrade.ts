@@ -8,6 +8,7 @@ import { whichCommand } from "which-command"
 export interface UpgradeEntry {
   name: string
   command: string
+  selectedByDefault?: boolean
 }
 
 export type UpgradeStatus = "succeeded" | "failed" | "skipped"
@@ -34,6 +35,7 @@ export const upgradeEntries: UpgradeEntry[] = [
   { name: "brew", command: "brew upgrade" },
   { name: "rust", command: "rustup update" },
   { name: "bun", command: "bun upgrade" },
+  { name: "claude", command: "claude install", selectedByDefault: false },
 ]
 
 export function parseNames(input: string) {
@@ -115,7 +117,9 @@ async function promptTargets(): Promise<UpgradeEntry[]> {
             label: e.name,
             hint: e.command,
           })),
-          initialValues: upgradeEntries.map((e) => e.name),
+          initialValues: upgradeEntries
+            .filter((entry) => entry.selectedByDefault !== false)
+            .map((entry) => entry.name),
         }),
     },
     {

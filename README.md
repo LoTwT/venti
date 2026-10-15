@@ -38,19 +38,21 @@ venti clone ssh://git@github.com/LoTwT/venti.git
 
 ### `venti upgrade [names]`
 
-Run tool upgrades for a known set of tools: `pnpm`, `brew`, `rust`, `bun`. Tools that are not installed are skipped.
+Run tool upgrades for a known set of tools: `pnpm`, `brew`, `rust`, `bun`, `claude`. Tools that are not installed are skipped.
 
 - `[names]` — comma-separated tool names, e.g. `brew,rust`
-- `--all` — upgrade all known tools
+- `--all` — upgrade all known tools, including `claude`
 - `-y, --yes` — run without confirmation (required for non-interactive runs)
 - `--dry-run` — print the commands without running them
 - `--json` — machine-readable JSON output
 
 With no selection, an interactive multi-select prompt is shown when both stdin and stdout are TTYs; otherwise (or with `--json`) the available tools are listed instead.
+The interactive prompt preselects all tools except `claude`, which runs `claude install` when selected.
 
 ```bash
 venti upgrade                # interactive multi-select
 venti upgrade brew,rust -y
+venti upgrade claude -y      # runs claude install
 venti upgrade --all --yes --json
 venti upgrade --all --dry-run
 ```
